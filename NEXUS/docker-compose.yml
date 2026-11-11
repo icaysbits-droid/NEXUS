@@ -4,7 +4,7 @@ services:
   database:
     image: postgres:16-alpine
     container_name: nexus-database
-    restart: unless-stopped
+    restart: always
     environment:
       POSTGRES_DB: nexus_db
       POSTGRES_USER: nexus_user
@@ -21,7 +21,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: nexus-backend
-    restart: unless-stopped
+    restart: always
     ports: 
       - "8080:8080"
     environment:
@@ -39,7 +39,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: nexus-frontend
-    restart: unless-stopped
+    restart: always
     ports:
       - "5173:5173"
     depends_on:
@@ -55,4 +55,4 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata: # <--- ¡ESTE BLOQUE ERA EL QUE FALTABA!
+  pgdata: 
