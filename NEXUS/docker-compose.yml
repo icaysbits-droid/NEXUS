@@ -29,6 +29,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=nexus_user
       - SPRING_DATASOURCE_PASSWORD=nexus_password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - JWT_SECRET=${JWT_SECRET:-9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08e4c7b9a2d1f3e5a7c9b0d2e4f6a8b1c3d5e7f9a0b2c4d6e8f0a1b3c5d7e9f1a2}
+      - JWT_EXPIRATION=86400000
     depends_on:
       - database
     networks:
