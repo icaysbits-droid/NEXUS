@@ -1,0 +1,238 @@
+/* ListaGeneral.css - Estilos para la vista de Lista General & KPIs Comerciales */
+
+.lista-general-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Encabezado */
+.lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.lista-titulo h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.lista-subtitulo {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ================= KPI CARDS ================= */
+.kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px -3px rgba(15, 23, 42, 0.08);
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpi-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon-blue {
+  background-color: #eff6ff;
+  color: #0033a0;
+}
+
+.kpi-icon-green {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.kpi-icon-amber {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.kpi-icon-purple {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.kpi-footer-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kpi-badge-positive {
+  color: #059669;
+  font-weight: 700;
+}
+
+.kpi-badge-pending {
+  color: #d97706;
+  font-weight: 700;
+}
+
+/* ================= BARRA DE BÚSQUEDA Y FILTROS ================= */
+.filtros-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 12px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filtros-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.input-buscar-lista {
+  min-width: 260px;
+  padding: 7px 12px;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.input-buscar-lista:focus {
+  border-color: #0033a0;
+}
+
+.select-filtro-lista {
+  padding: 7px 12px;
+  font-size: 12.5px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background-color: #ffffff;
+  color: #1e293b;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-filtro-lista:focus {
+  border-color: #0033a0;
+}
+
+.contador-registros {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Tabla Lista General */
+.lista-tabla-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 58vh;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.lista-tabla-scroll table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12.5px;
+  color: #1e293b;
+}
+
+.lista-tabla-scroll thead {
+  background-color: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.lista-tabla-scroll th {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.lista-tabla-scroll tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.lista-tabla-scroll tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.lista-tabla-scroll td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
+  vertical-align: middle;
+}

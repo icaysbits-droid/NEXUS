@@ -1,0 +1,477 @@
+/* clientes_eject.css - Estilos para el módulo de Clientes */
+
+/* Encabezado flexbox: título a la izquierda, botones a la derecha en la misma línea */
+.clientes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.clientes-titulo h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.clientes-subtitulo {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.clientes-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto; /* Alinea los botones a la extrema derecha */
+}
+
+/* Botón Material UI para Cargar Constancia Situación Fiscal (CSF) - Compacto */
+.btn-csf-cliente {
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  background-color: #ffffff !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border-radius: 6px !important;
+  padding: 4px 12px !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-csf-cliente:hover {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Botón Material UI para Agregar Cliente - Compacto */
+.btn-agregar-cliente {
+  background-color: #0033a0 !important;
+  color: #ffffff !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border-radius: 6px !important;
+  padding: 4px 14px !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  box-shadow: 0 1px 3px rgba(0, 51, 160, 0.2) !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-agregar-cliente:hover {
+  background-color: #002677 !important;
+  box-shadow: 0 2px 6px rgba(0, 51, 160, 0.28) !important;
+}
+
+/* Sub-pestañas para alternar vistas: Lista General vs Detalle Fiscal Completo */
+.clientes-subtabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.subtab-btn {
+  background: none;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.subtab-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.subtab-btn.active {
+  background-color: #e0f2fe;
+  color: #0284c7;
+  font-weight: 700;
+}
+
+/* Contenedor con scroll horizontal y vertical para la tabla completa */
+.clientes-tabla-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 68vh;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.clientes-tabla-scroll table {
+  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+.clientes-tabla-scroll th,
+.clientes-tabla-scroll td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 12.8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clientes-tabla-scroll th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Celdas Editables Inline (Estilo Excel) */
+.editable-cell-wrapper {
+  padding: 3px 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, outline 0.15s ease;
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editable-cell-wrapper:hover:not(.read-only) {
+  background-color: #f0fdf4;
+  outline: 1px dashed #22c55e;
+}
+
+.editable-cell-wrapper.read-only {
+  cursor: default;
+  color: #475569;
+}
+
+.read-only-cell {
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}
+
+.inline-cell-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  font-size: 12.8px;
+  font-family: inherit;
+  border: 1.5px solid #0033a0;
+  border-radius: 4px;
+  outline: none;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.inline-cell-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 4px;
+  font-size: 12.5px;
+  font-family: inherit;
+  border: 1.5px solid #0033a0;
+  border-radius: 4px;
+  outline: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+/* Badges de Frecuencia de Servicios */
+.frecuencia-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.frecuencia-badge.frecuencia-alta {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.frecuencia-badge.frecuencia-media {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.frecuencia-badge.frecuencia-baja {
+  background-color: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+/* Badges de Estatus Comercial */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.status-pill.activo {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.status-pill.pendiente {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+.status-pill.inactivo {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Badges de Expediente VEF-20 */
+.vef-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.vef-badge.vef-completo {
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+.vef-badge.vef-pendiente {
+  background-color: #fefce8;
+  color: #854d0e;
+}
+
+.vef-badge.vef-vencido {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Acciones de la tabla con iconos de Material UI */
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.table-btn {
+  padding: 5px !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+.table-btn.edit-btn {
+  color: #0284c7 !important;
+}
+
+.table-btn.edit-btn:hover {
+  background-color: #e0f2fe !important;
+}
+
+.table-btn.link-btn {
+  color: #10b981 !important;
+}
+
+.table-btn.link-btn:hover {
+  background-color: #ecfdf5 !important;
+}
+
+.table-btn.delete-btn {
+  color: #ef4444 !important;
+}
+
+.table-btn.delete-btn:hover {
+  background-color: #fef2f2 !important;
+}
+
+/* =========================================================
+   MODAL DE CONFIRMACIÓN PARA ELIMINAR CLIENTE
+   ========================================================= */
+.modal-eliminar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1400;
+  animation: fadeInModal 0.18s ease-out;
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUpModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-eliminar-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 14px;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  animation: scaleUpModal 0.2s ease-out;
+}
+
+.modal-eliminar-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.modal-eliminar-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-eliminar-title {
+  margin: 0 0 4px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-eliminar-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.modal-eliminar-info-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #dc2626;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+
+.modal-eliminar-cliente-nombre {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.modal-eliminar-cliente-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.modal-eliminar-clave-tag {
+  background-color: #e0e7ff;
+  color: #0033a0;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+}
+
+.modal-eliminar-warning {
+  font-size: 12.5px;
+  color: #b91c1c;
+  background-color: #fff1f2;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.modal-eliminar-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-modal-cancelar {
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 6px 16px !important;
+}
+
+.btn-modal-cancelar:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+.btn-modal-confirmar {
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  padding: 6px 18px !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.25) !important;
+}
+
+.btn-modal-confirmar:hover {
+  background-color: #b91c1c !important;
+}
