@@ -2,8 +2,10 @@ package com.nexus.backend.controller;
 
 import com.nexus.backend.model.Client;
 import com.nexus.backend.model.Users;
+import com.nexus.backend.service.AuditService;
 import com.nexus.backend.service.ClientService;
 import com.nexus.backend.service.LectorPdFService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +24,7 @@ import java.util.UUID;
 
 /**
  * Controlador REST para el Módulo de Clientes.
- * Protegido integralmente con JWT.
+ * Protegido integralmente con JWT y conectado con la Bitácora de Auditoría (Yauaa).
  * 
  * Expone endpoints de consulta, búsqueda dinámica (clave, RFC, razón social, CURP)
  * y mantenimiento de cartera con aislamiento de seguridad según el rol del usuario.
@@ -38,6 +40,7 @@ public class ClientController {
 
     private final ClientService clientService;
     private final LectorPdFService lectorPdFService;
+    private final AuditService auditService;
 
     // 1. Listar clientes (con soporte para paginación opcional)
     // GET /api/clientes o GET /api/clientes?page=0&size=20
@@ -117,12 +120,13 @@ public class ClientController {
         }
     }
 
-    // 4. Crear nuevo cliente
+    // 5. Crear nuevo cliente
     // POST /api/clientes
     @PostMapping
     public ResponseEntity<?> crear(
             @RequestBody Client client,
-            @AuthenticationPrincipal Users currentUser
+            @AuthenticationPrincipal Users currentUser,
+            HttpServletRequest request
     ) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "No autenticado"));
@@ -130,19 +134,29 @@ public class ClientController {
 
         try {
             Client nuevo = clientService.guardar(client, currentUser);
+            auditService.registrarEvento(
+                    currentUser,
+                    "CREAR_CLIENTE",
+                    "CLIENTES",
+                    "Alta de cliente " + (nuevo.getClaveCliente() != null ? nuevo.getClaveCliente() : "")
+                            + " con razón social " + nuevo.getRazonSocial() + " (RFC: " + nuevo.getRfc() + ")",
+                    "SUCCESS",
+                    request
+            );
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    // 5. Actualizar cliente existente
+    // 6. Actualizar cliente existente
     // PUT /api/clientes/{id}
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable UUID id,
             @RequestBody Client client,
-            @AuthenticationPrincipal Users currentUser
+            @AuthenticationPrincipal Users currentUser,
+            HttpServletRequest request
     ) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "No autenticado"));
@@ -151,6 +165,15 @@ public class ClientController {
         try {
             client.setId(id);
             Client actualizado = clientService.guardar(client, currentUser);
+            auditService.registrarEvento(
+                    currentUser,
+                    "UPDATE_CLIENTE",
+                    "CLIENTES",
+                    "Actualización de datos del cliente " + (actualizado.getClaveCliente() != null ? actualizado.getClaveCliente() : id)
+                            + " - " + actualizado.getRazonSocial(),
+                    "INFO",
+                    request
+            );
             return ResponseEntity.ok(actualizado);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
@@ -159,19 +182,32 @@ public class ClientController {
         }
     }
 
-    // 6. Dar de baja un cliente
+    // 7. Dar de baja un cliente
     // DELETE /api/clientes/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(
             @PathVariable UUID id,
-            @AuthenticationPrincipal Users currentUser
+            @AuthenticationPrincipal Users currentUser,
+            HttpServletRequest request
     ) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "No autenticado"));
         }
 
         try {
+            String refCliente = clientService.buscarPorId(id, currentUser)
+                    .map(c -> (c.getClaveCliente() != null ? c.getClaveCliente() : id.toString()) + " (" + c.getRazonSocial() + ")")
+                    .orElse("ID " + id);
+
             clientService.eliminar(id, currentUser);
+            auditService.registrarEvento(
+                    currentUser,
+                    "ELIMINAR_CLIENTE",
+                    "CLIENTES",
+                    "Eliminación de cliente " + refCliente,
+                    "WARN",
+                    request
+            );
             return ResponseEntity.ok(Map.of("mensaje", "Cliente eliminado correctamente", "id", id));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
@@ -180,7 +216,7 @@ public class ClientController {
         }
     }
 
-    // 7. Extraer datos fiscales desde archivo PDF (Constancia de Situación Fiscal - CSF)
+    // 8. Extraer datos fiscales desde archivo PDF (Constancia de Situación Fiscal - CSF)
     // POST /api/clientes/extraer-csf
     @PostMapping("/extraer-csf")
     public ResponseEntity<?> extraerCsf(

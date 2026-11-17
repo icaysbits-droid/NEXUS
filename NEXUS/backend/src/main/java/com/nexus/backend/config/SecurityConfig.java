@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 // Permitir peticiones pre-flight de CORS (OPTIONS)
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                // Rutas de Super Administración (Bitácora de Auditoría Core) restringidas a SUPER_ADMIN
+                .requestMatchers("/api/core/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "SUPER_ADMIN")
                 // Endpoints de clientes y demás recursos requieren autenticación JWT
                 .requestMatchers("/api/clientes/**").authenticated()
                 .anyRequest().authenticated()
