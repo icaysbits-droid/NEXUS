@@ -93,52 +93,50 @@ export default function CoreOverview({ setActiveCoreTab }) {
         </div>
       </header>
 
-      {/* 4 KPIs Globales */}
-      <div className="core-kpi-grid">
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Usuarios del Sistema</span>
-            <div className="core-kpi-icon blue">
-              <UsersKpiIcon />
-            </div>
+      {/* 4 Indicadores Globales en Stat Pills compactos */}
+      <div className="core-stat-bar">
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap blue">
+            <UsersKpiIcon />
           </div>
-          <div className="core-kpi-value">{loading ? '...' : totalUsuarios}</div>
-          <div className="core-kpi-foot">
-            <strong>{usuariosActivos}</strong> cuentas activas en PostgreSQL
+          <div className="core-stat-content">
+            <span className="core-stat-label">Usuarios:</span>
+            <span className="core-stat-val">{loading ? '...' : totalUsuarios}</span>
+            <span className="core-stat-extra">({usuariosActivos} activos)</span>
           </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Cuentas Nivel 1 (TI)</span>
-            <div className="core-kpi-icon purple">
-              <ShieldCheckIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap purple">
+            <ShieldCheckIcon />
           </div>
-          <div className="core-kpi-value">{loading ? '...' : superAdmins}</div>
-          <div className="core-kpi-foot">Privilegios de Super Administrador</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Cuentas TI:</span>
+            <span className="core-stat-val">{loading ? '...' : superAdmins}</span>
+            <span className="core-stat-extra">(Super Admin)</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Cartera Global 360°</span>
-            <div className="core-kpi-icon green">
-              <BusinessClientsIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap green">
+            <BusinessClientsIcon />
           </div>
-          <div className="core-kpi-value">{loading ? '...' : totalClientes}</div>
-          <div className="core-kpi-foot">Clientes registrados en todas las áreas</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Cartera Global:</span>
+            <span className="core-stat-val">{loading ? '...' : totalClientes}</span>
+            <span className="core-stat-extra">clientes</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Áreas & Jerarquía</span>
-            <div className="core-kpi-icon amber">
-              <HierarchyAreaIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap amber">
+            <HierarchyAreaIcon />
           </div>
-          <div className="core-kpi-value">5 Niveles</div>
-          <div className="core-kpi-foot">TI, Ventas, Laboratorio, Calidad y Operaciones</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Jerarquía:</span>
+            <span className="core-stat-val">5 Niveles</span>
+            <span className="core-stat-extra">(5 áreas)</span>
+          </div>
         </div>
       </div>
 

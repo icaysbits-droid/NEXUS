@@ -72,50 +72,49 @@ export default function CoreSystemHealth() {
         </Button>
       </header>
 
-      {/* 4 Indicadores de Infraestructura */}
-      <div className="core-kpi-grid">
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Uptime del Sistema</span>
-            <div className="core-kpi-icon green">
-              <PulseIcon />
-            </div>
+      {/* 4 Indicadores de Infraestructura en Stat Pills compactos */}
+      <div className="core-stat-bar">
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap green">
+            <PulseIcon />
           </div>
-          <div className="core-kpi-value">99.98%</div>
-          <div className="core-kpi-foot">Operación continua sin interrupciones</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Uptime:</span>
+            <span className="core-stat-val">99.98%</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Backend API REST</span>
-            <div className="core-kpi-icon blue">
-              <ServerIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap blue">
+            <ServerIcon />
           </div>
-          <div className="core-kpi-value">Saludable</div>
-          <div className="core-kpi-foot">Tiempo de respuesta promedio: 14 ms</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">API REST:</span>
+            <span className="core-stat-val">Saludable</span>
+            <span className="core-stat-extra">(14 ms)</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Pool de Conexiones BD</span>
-            <div className="core-kpi-icon purple">
-              <DatabaseIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap purple">
+            <DatabaseIcon />
           </div>
-          <div className="core-kpi-value">3 / 20</div>
-          <div className="core-kpi-foot">HikariCP activo con PostgreSQL 16</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Pool BD:</span>
+            <span className="core-stat-val">3 / 20</span>
+            <span className="core-stat-extra">(HikariCP)</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Seguridad de Acceso</span>
-            <div className="core-kpi-icon amber">
-              <ShieldIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap amber">
+            <ShieldIcon />
           </div>
-          <div className="core-kpi-value">Seguro</div>
-          <div className="core-kpi-foot">BCrypt rounds: 10 • JWT firmado</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Seguridad:</span>
+            <span className="core-stat-val">Seguro</span>
+            <span className="core-stat-extra">(BCrypt + JWT)</span>
+          </div>
         </div>
       </div>
 

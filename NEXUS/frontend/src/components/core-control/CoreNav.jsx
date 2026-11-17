@@ -2,6 +2,7 @@ import { useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import SvgIcon from '@mui/material/SvgIcon';
+import Tooltip from '@mui/material/Tooltip';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -85,8 +86,35 @@ function LogoutIcon(props) {
   );
 }
 
+function ChevronLeftIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <polyline points="15 18 9 12 15 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </SvgIcon>
+  );
+}
+
+function ChevronRightIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <polyline points="9 18 15 12 9 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </SvgIcon>
+  );
+}
+
 export default function CoreNav({ activeCoreTab = 'resumen', setActiveCoreTab, user, onLogout }) {
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('nexus_core_nav_collapsed') === 'true'
+  );
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('nexus_core_nav_collapsed', String(next));
+      return next;
+    });
+  };
 
   const displayName = user?.nombre || 'Super';
   const displayLastName = user?.apellido || 'Admin';
@@ -94,120 +122,162 @@ export default function CoreNav({ activeCoreTab = 'resumen', setActiveCoreTab, u
 
   return (
     <>
-      <aside className="core-sidebar">
+      <aside className={`core-sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="core-sidebar-top">
           {/* Identidad visual Nivel 1 */}
           <div className="core-brand">
-            <svg width="32" height="18" viewBox="0 0 54 28" fill="none">
-              <circle cx="14" cy="14" r="14" fill="#38bdf8" />
-              <circle cx="40" cy="14" r="14" fill="#ffffff" />
-            </svg>
-            <div className="core-brand-text">
-              <span className="core-brand-title">ICAYS NEXUS</span>
-              <span className="core-brand-badge">CORE CONTROL • NIVEL 1</span>
+            <div className="core-brand-left">
+              <svg width="32" height="18" viewBox="0 0 54 28" fill="none" style={{ flexShrink: 0 }}>
+                <circle cx="14" cy="14" r="14" fill="#38bdf8" />
+                <circle cx="40" cy="14" r="14" fill="#ffffff" />
+              </svg>
+              {!collapsed && (
+                <div className="core-brand-text">
+                  <span className="core-brand-title">ICAYS NEXUS</span>
+                  <span className="core-brand-badge">CORE CONTROL</span>
+                </div>
+              )}
             </div>
+            <Tooltip title={collapsed ? 'Expandir menú' : 'Minimizar menú'} placement="right" arrow>
+              <IconButton
+                size="small"
+                className="core-toggle-btn"
+                onClick={toggleCollapsed}
+                aria-label={collapsed ? 'Expandir menú' : 'Minimizar menú'}
+              >
+                {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              </IconButton>
+            </Tooltip>
           </div>
 
           {/* GRUPO 1: MONITOREO Y SUPERVISIÓN */}
-          <div className="core-nav-section-label">Monitoreo & Supervisión</div>
+          {!collapsed && <div className="core-nav-section-label">Monitoreo & Supervisión</div>}
           <nav className="core-nav-list">
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'resumen' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('resumen')}
-            >
-              <DashboardIcon />
-              <span>Monitor 360°</span>
-            </button>
+            <Tooltip title="Monitor 360°" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'resumen' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('resumen')}
+              >
+                <DashboardIcon />
+                {!collapsed && <span>Monitor 360°</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'cartera-global' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('cartera-global')}
-            >
-              <GlobalPortfolioIcon />
-              <span>Cartera Global</span>
-            </button>
+            <Tooltip title="Cartera Global" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'cartera-global' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('cartera-global')}
+              >
+                <GlobalPortfolioIcon />
+                {!collapsed && <span>Cartera Global</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'salud' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('salud')}
-            >
-              <PulseIcon />
-              <span>Salud del Sistema</span>
-            </button>
+            <Tooltip title="Salud del Sistema" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'salud' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('salud')}
+              >
+                <PulseIcon />
+                {!collapsed && <span>Salud del Sistema</span>}
+              </button>
+            </Tooltip>
           </nav>
 
           {/* GRUPO 2: ADMINISTRACIÓN Y ACCESOS */}
-          <div className="core-nav-section-label" style={{ marginTop: '16px' }}>
-            Administración & Control
-          </div>
-          <nav className="core-nav-list">
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'usuarios' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('usuarios')}
-            >
-              <UsersShieldIcon />
-              <span>Usuarios</span>
-            </button>
+          {!collapsed && (
+            <div className="core-nav-section-label" style={{ marginTop: '16px' }}>
+              Administración & Control
+            </div>
+          )}
+          <nav className="core-nav-list" style={collapsed ? { marginTop: '10px' } : undefined}>
+            <Tooltip title="Usuarios" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'usuarios' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('usuarios')}
+              >
+                <UsersShieldIcon />
+                {!collapsed && <span>Usuarios</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'licencias' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('licencias')}
-            >
-              <KeyIcon />
-              <span>Licencias</span>
-            </button>
+            <Tooltip title="Licencias" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'licencias' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('licencias')}
+              >
+                <KeyIcon />
+                {!collapsed && <span>Licencias</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'roles-areas' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('roles-areas')}
-            >
-              <HierarchyIcon />
-              <span>Roles y Áreas</span>
-            </button>
+            <Tooltip title="Roles y Áreas" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'roles-areas' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('roles-areas')}
+              >
+                <HierarchyIcon />
+                {!collapsed && <span>Roles y Áreas</span>}
+              </button>
+            </Tooltip>
           </nav>
 
           {/* GRUPO 3: AUDITORÍA */}
-          <div className="core-nav-section-label" style={{ marginTop: '16px' }}>
-            Auditoría & Trazabilidad
-          </div>
-          <nav className="core-nav-list">
-            <button
-              type="button"
-              className={`core-nav-item ${activeCoreTab === 'historial' ? 'active' : ''}`}
-              onClick={() => setActiveCoreTab('historial')}
-            >
-              <HistoryIcon />
-              <span>Historial (Bitácora)</span>
-            </button>
+          {!collapsed && (
+            <div className="core-nav-section-label" style={{ marginTop: '16px' }}>
+              Auditoría & Trazabilidad
+            </div>
+          )}
+          <nav className="core-nav-list" style={collapsed ? { marginTop: '10px' } : undefined}>
+            <Tooltip title="Historial (Bitácora)" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`core-nav-item ${activeCoreTab === 'historial' ? 'active' : ''}`}
+                onClick={() => setActiveCoreTab('historial')}
+              >
+                <HistoryIcon />
+                {!collapsed && <span>Historial (Bitácora)</span>}
+              </button>
+            </Tooltip>
           </nav>
         </div>
 
         {/* Footer del Sidebar con perfil y logout */}
         <div className="core-sidebar-footer">
-          <div className="core-user-profile">
-            <div className="core-user-avatar">{initials}</div>
-            <div className="core-user-info">
-              <span className="core-user-name">
-                {displayName} {displayLastName}
-              </span>
-              <span className="core-user-role">{user?.rol || 'SUPER_ADMIN'}</span>
-            </div>
-          </div>
-
-          <IconButton
-            size="small"
-            onClick={() => setOpenLogoutDialog(true)}
-            title="Cerrar sesión de Nivel 1"
-            sx={{ color: '#94a3b8', '&:hover': { color: '#f87171', backgroundColor: 'rgba(248,113,113,0.1)' } }}
+          <Tooltip
+            title={`${displayName} ${displayLastName} (${user?.rol || 'SUPER_ADMIN'})`}
+            placement="right"
+            arrow
+            disableHoverListener={!collapsed}
           >
-            <LogoutIcon />
-          </IconButton>
+            <div className="core-user-profile">
+              <div className="core-user-avatar">{initials}</div>
+              {!collapsed && (
+                <div className="core-user-info">
+                  <span className="core-user-name">
+                    {displayName} {displayLastName}
+                  </span>
+                  <span className="core-user-role">{user?.rol || 'SUPER_ADMIN'}</span>
+                </div>
+              )}
+            </div>
+          </Tooltip>
+
+          <Tooltip title="Cerrar sesión de Nivel 1" placement="right" arrow>
+            <IconButton
+              size="small"
+              onClick={() => setOpenLogoutDialog(true)}
+              sx={{ color: '#94a3b8', '&:hover': { color: '#f87171', backgroundColor: 'rgba(248,113,113,0.1)' } }}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </div>
       </aside>
 

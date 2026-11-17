@@ -112,7 +112,13 @@ export default function CoreGlobalClients() {
                       <td>
                         <span
                           className={`core-badge ${
-                            c.estatus === 'ACTIVO' ? 'status-active' : 'status-inactive'
+                            c.estatus === 'ACTIVO'
+                              ? 'status-active'
+                              : c.estatus === 'SEGUIMIENTO'
+                              ? 'status-seguimiento'
+                              : c.estatus === 'UNICO'
+                              ? 'status-unico'
+                              : 'status-inactive'
                           }`}
                         >
                           {c.estatus || 'ACTIVO'}

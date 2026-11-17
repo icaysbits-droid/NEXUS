@@ -2,6 +2,7 @@ import { useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import SvgIcon from '@mui/material/SvgIcon';
+import Tooltip from '@mui/material/Tooltip';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -57,6 +58,17 @@ function DocumentIcon(props) {
   );
 }
 
+// Icono Modelos Analíticos / Matrices 2025
+function ModelIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="none" stroke="currentColor" strokeWidth="2" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" fill="none" stroke="currentColor" strokeWidth="2" />
+      <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" strokeWidth="2" />
+    </SvgIcon>
+  );
+}
+
 // Icono Salir / Logout
 function LogoutIcon(props) {
   return (
@@ -68,8 +80,36 @@ function LogoutIcon(props) {
   );
 }
 
+// Iconos de Contraer / Expandir Barra Lateral
+function ChevronLeftIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <polyline points="15 18 9 12 15 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </SvgIcon>
+  );
+}
+
+function ChevronRightIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <polyline points="9 18 15 12 9 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </SvgIcon>
+  );
+}
+
 export default function EjecutivaNav({ activeTab = 'clientes', setActiveTab, user, onLogout }) {
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('nexus_nav_collapsed') === 'true'
+  );
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('nexus_nav_collapsed', String(next));
+      return next;
+    });
+  };
 
   // Cálculo de iniciales y nombres del usuario
   const displayName = user?.nombre || 'Marisol';
@@ -78,80 +118,122 @@ export default function EjecutivaNav({ activeTab = 'clientes', setActiveTab, use
 
   return (
     <>
-      <aside className="ejecutiva-sidebar">
+      <aside className={`ejecutiva-sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-top">
           {/* Logo y Encabezado */}
           <div className="sidebar-brand">
-            <svg width="30" height="16" viewBox="0 0 54 28" fill="none">
-              <circle cx="14" cy="14" r="14" fill="#ffffff" />
-              <circle cx="40" cy="14" r="14" fill="#38bdf8" />
-            </svg>
-            <div className="brand-text-box">
-              <span className="brand-title">ICAYS NEXUS</span>
-              <span className="brand-badge">EJECUTIVA DE VENTAS</span>
+            <div className="sidebar-brand-left">
+              <svg width="30" height="16" viewBox="0 0 54 28" fill="none" style={{ flexShrink: 0 }}>
+                <circle cx="14" cy="14" r="14" fill="#ffffff" />
+                <circle cx="40" cy="14" r="14" fill="#38bdf8" />
+              </svg>
+              {!collapsed && (
+                <div className="brand-text-box">
+                  <span className="brand-title">ICAYS NEXUS</span>
+                  <span className="brand-badge">EJECUTIVA DE VENTAS</span>
+                </div>
+              )}
             </div>
+            <Tooltip title={collapsed ? 'Expandir menú' : 'Minimizar menú'} placement="right" arrow>
+              <IconButton
+                size="small"
+                className="sidebar-toggle-btn"
+                onClick={toggleCollapsed}
+                aria-label={collapsed ? 'Expandir menú' : 'Minimizar menú'}
+              >
+                {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+              </IconButton>
+            </Tooltip>
           </div>
         </div>
 
         {/* Contenedor con Scroll para el Menú de Navegación */}
         <div className="sidebar-nav-container">
           <nav className="sidebar-nav">
-            <button
-              type="button"
-              className={`nav-item ${activeTab === 'clientes' ? 'active' : ''}`}
-              onClick={() => setActiveTab && setActiveTab('clientes')}
-            >
-              <span className="nav-icon"><UsersIcon /></span>
-              <span>Clientes</span>
-            </button>
+            <Tooltip title="Clientes" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'clientes' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('clientes')}
+              >
+                <span className="nav-icon"><UsersIcon /></span>
+                {!collapsed && <span>Clientes</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`nav-item ${activeTab === 'lista-general' ? 'active' : ''}`}
-              onClick={() => setActiveTab && setActiveTab('lista-general')}
-            >
-              <span className="nav-icon"><ChartIcon /></span>
-              <span>Lista General</span>
-            </button>
+            <Tooltip title="Lista General" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'lista-general' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('lista-general')}
+              >
+                <span className="nav-icon"><ChartIcon /></span>
+                {!collapsed && <span>Lista General</span>}
+              </button>
+            </Tooltip>
 
+            <Tooltip title="Cotizaciones" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'cotizaciones' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('cotizaciones')}
+              >
+                <span className="nav-icon"><DocumentIcon /></span>
+                {!collapsed && <span>Cotizaciones</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`nav-item ${activeTab === 'cotizaciones' ? 'active' : ''}`}
-              onClick={() => setActiveTab && setActiveTab('cotizaciones')}
-            >
-              <span className="nav-icon"><DocumentIcon /></span>
-              <span>Cotizaciones</span>
-            </button>
+            <Tooltip title="Modelos Analíticos" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'modelos' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('modelos')}
+              >
+                <span className="nav-icon"><ModelIcon /></span>
+                {!collapsed && <span>Modelos Analíticos</span>}
+              </button>
+            </Tooltip>
 
-            <button
-              type="button"
-              className={`nav-item ${activeTab === 'condicionantes' ? 'active' : ''}`}
-              onClick={() => setActiveTab && setActiveTab('condicionantes')}
-            >
-              <span className="nav-icon"><DocumentIcon /></span>
-              <span>Notas Condicionantes</span>
-            </button>
+            <Tooltip title="Notas Condicionantes" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'condicionantes' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('condicionantes')}
+              >
+                <span className="nav-icon"><DocumentIcon /></span>
+                {!collapsed && <span>Notas Condicionantes</span>}
+              </button>
+            </Tooltip>
           </nav>
         </div>
 
         {/* Pie de la barra lateral con perfil y logout */}
         <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="user-avatar">{initials}</div>
-            <div className="user-info">
-              <span className="user-name">{displayName} {displayLastName}</span>
-              <span className="user-role">{user?.rol || 'Ejecutiva de Ventas'}</span>
-            </div>
-          </div>
-          <IconButton
-            size="small"
-            className="logout-icon-btn"
-            title="Cerrar sesión"
-            onClick={() => setOpenLogoutDialog(true)}
+          <Tooltip
+            title={`${displayName} ${displayLastName} (${user?.rol || 'Ejecutiva de Ventas'})`}
+            placement="right"
+            arrow
+            disableHoverListener={!collapsed}
           >
-            <LogoutIcon />
-          </IconButton>
+            <div className="user-profile">
+              <div className="user-avatar">{initials}</div>
+              {!collapsed && (
+                <div className="user-info">
+                  <span className="user-name">{displayName} {displayLastName}</span>
+                  <span className="user-role">{user?.rol || 'Ejecutiva de Ventas'}</span>
+                </div>
+              )}
+            </div>
+          </Tooltip>
+          <Tooltip title="Cerrar sesión" placement="right" arrow>
+            <IconButton
+              size="small"
+              className="logout-icon-btn"
+              onClick={() => setOpenLogoutDialog(true)}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </div>
       </aside>
 

@@ -88,7 +88,7 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
       razon_social: 'CARLOS HUMBERTO MENDEZ RAMÍREZ',
       rfc: 'MERC850412XX1',
       telefono: '555-612-8901',
-      estatus: 'INACTIVO',
+      estatus: 'SEGUIMIENTO',
       frecuencia: 'Baja (Esporádico)',
       servicios_total: 3,
       ultimo_servicio: '15/08/2026',
@@ -114,7 +114,7 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
       razon_social: 'SERVICIOS AMBIENTALES DE OCCIDENTE',
       rfc: 'SAO190708MN9',
       telefono: '331-456-7890',
-      estatus: 'ACTIVO',
+      estatus: 'UNICO',
       frecuencia: 'Media (Quincenal)',
       servicios_total: 8,
       ultimo_servicio: '28/10/2026',
@@ -187,63 +187,54 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
             </div>
           </header>
 
-          {/* ================= 4 TARJETAS DE KPIS ================= */}
+          {/* ================= KPIS COMPACTOS EN LÍNEA (STAT PILLS) ================= */}
           <div className="kpis-grid">
             {/* KPI 1: Total Clientes */}
             <div className="kpi-card">
-              <div className="kpi-card-header">
-                <span className="kpi-label">Cartera de Clientes</span>
-                <div className="kpi-icon-wrap kpi-icon-blue">
-                  <ClientsKpiIcon />
-                </div>
+              <div className="kpi-icon-wrap kpi-icon-blue">
+                <ClientsKpiIcon />
               </div>
-              <div className="kpi-value">{kpis.total}</div>
-              <div className="kpi-footer-text">
-                <span className="kpi-badge-positive">{kpis.activos} activos</span> en el sistema
+              <div className="kpi-content">
+                <span className="kpi-label">Cartera:</span>
+                <span className="kpi-value">{kpis.total}</span>
+                <span className="kpi-extra">({kpis.activos} activos)</span>
               </div>
             </div>
 
             {/* KPI 2: Frecuencia Alta */}
             <div className="kpi-card">
-              <div className="kpi-card-header">
-                <span className="kpi-label">Frecuencia Alta</span>
-                <div className="kpi-icon-wrap kpi-icon-green">
-                  <TrendUpIcon />
-                </div>
+              <div className="kpi-icon-wrap kpi-icon-green">
+                <TrendUpIcon />
               </div>
-              <div className="kpi-value">{kpis.altaFrecuencia}</div>
-              <div className="kpi-footer-text">
-                Servicios continuos semana a semana
+              <div className="kpi-content">
+                <span className="kpi-label">Frecuencia Alta:</span>
+                <span className="kpi-value">{kpis.altaFrecuencia}</span>
+                <span className="kpi-extra">(Semanal)</span>
               </div>
             </div>
 
             {/* KPI 3: Expedientes VEF-20 Pendientes */}
             <div className="kpi-card">
-              <div className="kpi-card-header">
-                <span className="kpi-label">Expedientes VEF-20</span>
-                <div className="kpi-icon-wrap kpi-icon-amber">
-                  <ClipboardCheckIcon />
-                </div>
+              <div className="kpi-icon-wrap kpi-icon-amber">
+                <ClipboardCheckIcon />
               </div>
-              <div className="kpi-value">{kpis.vefPendientes}</div>
-              <div className="kpi-footer-text">
-                <span className="kpi-badge-pending">Pendientes</span> de documentación
+              <div className="kpi-content">
+                <span className="kpi-label">VEF-20:</span>
+                <span className="kpi-value">{kpis.vefPendientes}</span>
+                <span className="kpi-extra">pendientes</span>
               </div>
             </div>
 
             {/* KPI 4: Saldo en Cartera */}
             <div className="kpi-card">
-              <div className="kpi-card-header">
-                <span className="kpi-label">Saldo por Cobrar</span>
-                <div className="kpi-icon-wrap kpi-icon-purple">
-                  <DollarIcon />
-                </div>
+              <div className="kpi-icon-wrap kpi-icon-purple">
+                <DollarIcon />
               </div>
-              <div className="kpi-value">
-                ${kpis.saldoTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-              </div>
-              <div className="kpi-footer-text">
-                Cartera total de clientes registrados
+              <div className="kpi-content">
+                <span className="kpi-label">Saldo Cartera:</span>
+                <span className="kpi-value">
+                  ${kpis.saldoTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                </span>
               </div>
             </div>
           </div>
@@ -277,7 +268,8 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
               >
                 <option value="TODOS">Todos los estatus</option>
                 <option value="ACTIVO">Activos</option>
-                <option value="INACTIVO">Inactivos</option>
+                <option value="SEGUIMIENTO">Seguimiento</option>
+                <option value="UNICO">Únicos</option>
               </select>
             </div>
 

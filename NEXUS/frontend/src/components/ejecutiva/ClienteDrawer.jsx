@@ -174,12 +174,14 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.razonSocial.trim()) {
-      alert('Por favor ingresa la Razón Social.');
-      return;
-    }
+    const dataAguardar = {
+      ...formData,
+      razonSocial: formData.razonSocial?.trim() || 'PROSPECTO PENDIENTE',
+      rfc: formData.rfc?.trim() || '',
+      estatus: formData.estatus || 'ACTIVO'
+    };
     if (onSave) {
-      onSave(formData);
+      onSave(dataAguardar);
     }
     onClose();
   };
@@ -255,15 +257,14 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
 
           <TextField
             name="razonSocial"
-            label="Razón Social / Nombre Comercial *"
-            placeholder="Ej: Constructora del Valle S.A. de C.V."
+            label="Razón Social / Nombre Comercial"
+            placeholder="Ej: Constructora del Valle S.A. de C.V. (o dejar vacío para Prospecto)"
             value={formData.razonSocial}
             onChange={handleChange}
             fullWidth
             size="small"
             variant="outlined"
             className="drawer-textfield"
-            required
           />
 
           <div className="form-row">
@@ -313,9 +314,9 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
             variant="outlined"
             className="drawer-textfield"
           >
-            <MenuItem value="ACTIVO">ACTIVO</MenuItem>
-            <MenuItem value="PENDIENTE">PENDIENTE</MenuItem>
-            <MenuItem value="INACTIVO">INACTIVO</MenuItem>
+            <MenuItem value="ACTIVO">Activo</MenuItem>
+            <MenuItem value="SEGUIMIENTO">Seguimiento</MenuItem>
+            <MenuItem value="UNICO">Único</MenuItem>
           </TextField>
         </section>
 
@@ -329,7 +330,7 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
           <div className="form-row">
             <TextField
               name="rfc"
-              label="RFC *"
+              label="RFC (Opcional)"
               placeholder="CVA080312AB1"
               value={formData.rfc}
               onChange={handleChange}
@@ -337,7 +338,6 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
               variant="outlined"
               className="drawer-textfield"
               inputProps={{ maxLength: 13 }}
-              required
             />
 
             <TextField
@@ -356,7 +356,7 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
           <TextField
             select
             name="regimenFiscal"
-            label="Régimen Fiscal (SAT) *"
+            label="Régimen Fiscal (SAT)"
             value={formData.regimenFiscal}
             onChange={handleChange}
             fullWidth
@@ -382,7 +382,7 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
           <div className="form-row">
             <TextField
               name="codigoPostal"
-              label="Código Postal (C.P.) *"
+              label="Código Postal (C.P.)"
               placeholder="03920"
               value={formData.codigoPostal}
               onChange={handleChange}
@@ -390,7 +390,6 @@ export default function ClienteDrawer({ open, onClose, onSave, initialData = nul
               variant="outlined"
               className="drawer-textfield"
               inputProps={{ maxLength: 5 }}
-              required
             />
 
             <TextField

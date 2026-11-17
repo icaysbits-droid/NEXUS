@@ -1,5 +1,6 @@
 const API_AUTH_URL = 'http://localhost:8080/api/auth';
 const API_CLIENTES_URL = 'http://localhost:8080/api/clientes';
+export const API_CORE_URL = 'http://localhost:8080/api/core';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('nexus_token') || localStorage.getItem('jwt_token');
@@ -49,6 +50,26 @@ export const getCoreGlobalClientes = async () => {
   });
   if (!response.ok) {
     throw new Error('Error al obtener la cartera global de clientes');
+  }
+  return await response.json();
+};
+/**
+ * Obtiene la bitácora de auditoría y telemetría Yauaa (exclusivo Super Admin)
+ */
+export const getCoreAuditLogs = async () => {
+  const response = await fetch(`${API_CORE_URL}/audit-logs`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Sesión no autorizada o expirada. Por favor vuelve a iniciar sesión.');
+    }
+    if (response.status === 403) {
+      throw new Error('Acceso denegado: se requieren permisos de Super Administrador.');
+    }
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Error al obtener la bitácora de auditoría');
   }
   return await response.json();
 };

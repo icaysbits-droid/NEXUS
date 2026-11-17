@@ -58,16 +58,6 @@ export default function CoreControlShell({ user, onLogout }) {
               <span style={{ fontSize: '12px', color: '#475569' }}>
                 Sesión: <strong style={{ color: '#0284c7' }}>{user?.email || 'superadmin@nexus.com'}</strong>
               </span>
-              <span style={{
-                fontSize: '11px',
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                fontWeight: 700,
-                padding: '3px 8px',
-                borderRadius: '4px'
-              }}>
-                NIVEL 1
-              </span>
             </div>
           </header>
 

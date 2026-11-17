@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import SvgIcon from '@mui/material/SvgIcon';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import { getCoreAuditLogs } from '../../services/coreService';
 
 function ClockIcon(props) {
   return (
@@ -18,92 +21,78 @@ function DownloadIcon(props) {
   );
 }
 
-const HISTORIAL_MOCK = [
-  {
-    id: 'LOG-89421',
-    timestamp: '2026-11-14 09:45:12',
-    usuario: 'superadmin@nexus.com',
-    rol: 'SUPER_ADMIN',
-    accion: 'LOGIN_SUCCESS',
-    modulo: 'AUTENTICACION',
-    detalle: 'Inicio de sesión exitoso con credenciales BCrypt desde IP 192.168.1.105',
-    nivel: 'INFO'
-  },
-  {
-    id: 'LOG-89420',
-    timestamp: '2026-11-14 09:30:22',
-    usuario: 'ejecutiva@gamil.com',
-    rol: 'EJECUTIVA',
-    accion: 'CREAR_CLIENTE',
-    modulo: 'CLIENTES',
-    detalle: 'Alta de cliente CLI-0002 con razón social INNOVACIONES MECATRÓNICAS DE PUEBLA vía CSF PDF',
-    nivel: 'SUCCESS'
-  },
-  {
-    id: 'LOG-89419',
-    timestamp: '2026-11-14 09:12:05',
-    usuario: 'ejecutiva@gamil.com',
-    rol: 'EJECUTIVA',
-    accion: 'LOGIN_SUCCESS',
-    modulo: 'AUTENTICACION',
-    detalle: 'Inicio de sesión verificado con token JWT vigente',
-    nivel: 'INFO'
-  },
-  {
-    id: 'LOG-89418',
-    timestamp: '2026-11-14 08:50:41',
-    usuario: 'sistema@nexus.internal',
-    rol: 'SYSTEM',
-    accion: 'DATA_SEEDER',
-    modulo: 'CONFIGURACION',
-    detalle: 'Sembrado automático de roles, áreas y usuario inicial en base de datos PostgreSQL',
-    nivel: 'INFO'
-  },
-  {
-    id: 'LOG-89417',
-    timestamp: '2026-11-13 18:20:11',
-    usuario: 'ejecutiva@gamil.com',
-    rol: 'EJECUTIVA',
-    accion: 'UPDATE_CLIENTE',
-    modulo: 'CLIENTES',
-    detalle: 'Edición en línea de campo saldo en cliente CLI-0001',
-    nivel: 'WARN'
-  },
-  {
-    id: 'LOG-89416',
-    timestamp: '2026-11-13 17:05:01',
-    usuario: 'desconocido@icays.com',
-    rol: 'INVITADO',
-    accion: 'LOGIN_FAILED',
-    modulo: 'SEGURIDAD',
-    detalle: 'Intento fallido de autenticación: contraseña incorrecta (HTTP 401)',
-    nivel: 'ERROR'
-  }
-];
+function RefreshIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+    </SvgIcon>
+  );
+}
 
 export default function CoreHistorial() {
-  const [logs, setLogs] = useState(HISTORIAL_MOCK);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [filtroModulo, setFiltroModulo] = useState('TODOS');
   const [filtroNivel, setFiltroNivel] = useState('TODOS');
 
-  const filtrados = logs.filter((item) => {
-    const q = busqueda.toLowerCase();
-    const matchText = 
-      item.id.toLowerCase().includes(q) ||
-      item.usuario.toLowerCase().includes(q) ||
-      item.detalle.toLowerCase().includes(q) ||
-      item.accion.toLowerCase().includes(q);
+  const cargarLogs = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getCoreAuditLogs();
+      setLogs(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error al cargar bitácora de auditoría:', err);
+      setError(err.message || 'Error al conectar con la bitácora de auditoría');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const matchModulo = filtroModulo === 'TODOS' || item.modulo === filtroModulo;
-    const matchNivel = filtroNivel === 'TODOS' || item.nivel === filtroNivel;
+  useEffect(() => {
+    cargarLogs();
+  }, []);
 
-    return matchText && matchModulo && matchNivel;
-  });
+  const filtrados = useMemo(() => {
+    return logs.filter((item) => {
+      const q = busqueda.toLowerCase().trim();
+      const idStr = String(item.id || '').toLowerCase();
+      const userStr = String(item.usuario || '').toLowerCase();
+      const detStr = String(item.detalle || '').toLowerCase();
+      const accStr = String(item.accion || '').toLowerCase();
+      const ipStr = String(item.ipOrigen || '').toLowerCase();
+      const dispStr = String(item.dispositivo || '').toLowerCase();
+      const soStr = String(item.sistemaOperativo || '').toLowerCase();
+      const navStr = String(item.navegador || '').toLowerCase();
+
+      const matchText =
+        !q ||
+        idStr.includes(q) ||
+        userStr.includes(q) ||
+        detStr.includes(q) ||
+        accStr.includes(q) ||
+        ipStr.includes(q) ||
+        dispStr.includes(q) ||
+        soStr.includes(q) ||
+        navStr.includes(q);
+
+      const matchModulo = filtroModulo === 'TODOS' || item.modulo === filtroModulo;
+      const matchNivel = filtroNivel === 'TODOS' || item.nivel === filtroNivel;
+
+      return matchText && matchModulo && matchNivel;
+    });
+  }, [logs, busqueda, filtroModulo, filtroNivel]);
 
   const exportarCSV = () => {
-    const headers = ['ID,Timestamp,Usuario,Rol,Accion,Modulo,Detalle,Nivel\n'];
-    const rows = filtrados.map(l => `"${l.id}","${l.timestamp}","${l.usuario}","${l.rol}","${l.accion}","${l.modulo}","${l.detalle}","${l.nivel}"\n`);
+    const headers = [
+      'ID,Timestamp,Usuario,Rol,Accion,Modulo,Detalle,Nivel,IP Origen,Dispositivo,Sistema Operativo,Navegador\n'
+    ];
+    const rows = filtrados.map(
+      (l) =>
+        `"${l.id || ''}","${l.timestamp || ''}","${l.usuario || ''}","${l.rol || ''}","${l.accion || ''}","${l.modulo || ''}","${(l.detalle || '').replace(/"/g, '""')}","${l.nivel || ''}","${l.ipOrigen || ''}","${l.dispositivo || ''}","${l.sistemaOperativo || ''}","${l.navegador || ''}"\n`
+    );
     const blob = new Blob([headers.concat(rows)], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -124,29 +113,62 @@ export default function CoreHistorial() {
           </p>
         </div>
 
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={exportarCSV}
-          sx={{
-            textTransform: 'none',
-            fontWeight: 600,
-            borderRadius: '8px',
-            borderColor: '#cbd5e1',
-            color: '#334155'
-          }}
-        >
-          Exportar Bitácora (CSV)
-        </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <RefreshIcon />}
+            onClick={cargarLogs}
+            disabled={loading}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              borderRadius: '8px',
+              backgroundColor: '#0284c7'
+            }}
+          >
+            {loading ? 'Cargando...' : 'Actualizar'}
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<DownloadIcon />}
+            onClick={exportarCSV}
+            disabled={filtrados.length === 0}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              borderRadius: '8px',
+              borderColor: '#cbd5e1',
+              color: '#334155'
+            }}
+          >
+            Exportar Bitácora (CSV)
+          </Button>
+        </div>
       </header>
+
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2, borderRadius: '8px' }}
+          action={
+            <Button color="inherit" size="small" onClick={cargarLogs}>
+              Reintentar
+            </Button>
+          }
+        >
+          {error}
+        </Alert>
+      )}
 
       <div className="core-panel-card">
         <div className="core-panel-toolbar">
           <div className="core-toolbar-filters">
             <input
               type="text"
-              placeholder="Buscar por usuario, acción, ID o detalle..."
+              placeholder="Buscar por usuario, acción, IP, dispositivo, OS..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="core-search-input"
@@ -159,6 +181,7 @@ export default function CoreHistorial() {
               <option value="TODOS">Todos los módulos</option>
               <option value="AUTENTICACION">Autenticación / Sesiones</option>
               <option value="CLIENTES">Expediente de Clientes</option>
+              <option value="USUARIOS">Usuarios</option>
               <option value="SEGURIDAD">Seguridad y Errores</option>
               <option value="CONFIGURACION">Configuración Global</option>
             </select>
@@ -189,46 +212,114 @@ export default function CoreHistorial() {
                 <th>Rol</th>
                 <th>Acción Realizada</th>
                 <th>Módulo</th>
+                <th>Equipo / Red (Yauaa)</th>
                 <th>Detalle Operativo</th>
                 <th>Severidad</th>
               </tr>
             </thead>
             <tbody>
-              {filtrados.map((log) => (
-                <tr key={log.id}>
-                  <td style={{ fontWeight: 800, color: '#475569', fontSize: '11.5px' }}>{log.id}</td>
-                  <td style={{ whiteSpace: 'nowrap', fontSize: '12px', color: '#64748b' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <ClockIcon />
-                      {log.timestamp}
-                    </div>
-                  </td>
-                  <td style={{ fontWeight: 600 }}>{log.usuario}</td>
-                  <td>
-                    <span className="core-badge" style={{ backgroundColor: '#f1f5f9', color: '#334155' }}>
-                      {log.rol}
-                    </span>
-                  </td>
-                  <td style={{ fontWeight: 700, fontSize: '12px' }}>{log.accion}</td>
-                  <td>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#0284c7' }}>
-                      {log.modulo}
-                    </span>
-                  </td>
-                  <td style={{ color: '#334155', maxWidth: '320px', lineHeight: 1.4 }}>
-                    {log.detalle}
-                  </td>
-                  <td>
-                    <span className={`core-badge ${
-                      log.nivel === 'ERROR' ? 'status-inactive' :
-                      log.nivel === 'WARN' ? 'role-super' :
-                      log.nivel === 'SUCCESS' ? 'status-active' : ''
-                    }`} style={log.nivel === 'INFO' ? { backgroundColor: '#f1f5f9', color: '#64748b' } : {}}>
-                      {log.nivel}
-                    </span>
+              {loading && logs.length === 0 ? (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                    <CircularProgress size={24} sx={{ mb: 1, display: 'block', mx: 'auto' }} />
+                    Cargando bitácora de auditoría en tiempo real...
                   </td>
                 </tr>
-              ))}
+              ) : filtrados.length === 0 ? (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                    No se encontraron registros de auditoría con los filtros seleccionados.
+                  </td>
+                </tr>
+              ) : (
+                filtrados.map((log) => {
+                  const rawId = String(log.id || '');
+                  const displayCode = rawId
+                    ? `LOG-${rawId.replace(/-/g, '').slice(0, 8).toUpperCase()}`
+                    : 'LOG-—';
+
+                  const deviceParts = [log.dispositivo, log.sistemaOperativo, log.navegador]
+                    .filter(Boolean)
+                    .join(' · ');
+
+                  return (
+                    <tr key={log.id}>
+                      <td
+                        title={rawId}
+                        style={{
+                          fontWeight: 800,
+                          color: '#0284c7',
+                          fontSize: '11.5px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {displayCode}
+                      </td>
+                      <td style={{ whiteSpace: 'nowrap', fontSize: '12px', color: '#64748b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <ClockIcon />
+                          {log.timestamp}
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>{log.usuario || 'Anónimo / Sistema'}</td>
+                      <td>
+                        <span
+                          className="core-badge"
+                          style={{ backgroundColor: '#f1f5f9', color: '#334155' }}
+                        >
+                          {log.rol || 'INVITADO'}
+                        </span>
+                      </td>
+                      <td style={{ fontWeight: 700, fontSize: '12px' }}>{log.accion}</td>
+                      <td>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#0284c7' }}>
+                          {log.modulo}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span
+                            style={{
+                              fontFamily: 'monospace',
+                              fontWeight: 700,
+                              fontSize: '11.5px',
+                              color: '#0f172a'
+                            }}
+                          >
+                            {log.ipOrigen || 'IP no registrada'}
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#64748b' }}>
+                            {deviceParts || 'Dispositivo no identificado'}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ color: '#334155', whiteSpace: 'nowrap' }}>
+                        {log.detalle}
+                      </td>
+                      <td>
+                        <span
+                          className={`core-badge ${
+                            log.nivel === 'ERROR'
+                              ? 'status-inactive'
+                              : log.nivel === 'WARN'
+                              ? 'role-super'
+                              : log.nivel === 'SUCCESS'
+                              ? 'status-active'
+                              : ''
+                          }`}
+                          style={
+                            log.nivel === 'INFO'
+                              ? { backgroundColor: '#f1f5f9', color: '#64748b' }
+                              : {}
+                          }
+                        >
+                          {log.nivel}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

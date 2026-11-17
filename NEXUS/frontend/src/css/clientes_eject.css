@@ -110,9 +110,9 @@
   max-width: 100%;
   overflow-x: auto;
   overflow-y: auto;
-  max-height: 68vh;
+  max-height: 74vh;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   background-color: #ffffff;
 }
 
@@ -125,7 +125,7 @@
 
 .clientes-tabla-scroll th,
 .clientes-tabla-scroll td {
-  padding: 10px 12px;
+  padding: 9px 12px;
   text-align: left;
   border-bottom: 1px solid #f1f5f9;
   font-size: 12.8px;
@@ -242,6 +242,16 @@
 .status-pill.activo {
   background-color: #ecfdf5;
   color: #047857;
+}
+
+.status-pill.seguimiento {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-pill.unico {
+  background-color: #f3e8ff;
+  color: #7e22ce;
 }
 
 .status-pill.pendiente {

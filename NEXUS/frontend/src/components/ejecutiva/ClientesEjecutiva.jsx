@@ -252,24 +252,24 @@ export default function ClientesEjecutiva({ user, onLogout, activeTab = 'cliente
         <div className="clientes-tabla-scroll">
             <table>
               <colgroup>
-                <col style={{ width: '110px' }} /> {/* Clave Cliente */}
-                <col style={{ width: '280px' }} /> {/* Razón Social */}
-                <col style={{ width: '140px' }} /> {/* RFC */}
-                <col style={{ width: '130px' }} /> {/* Régimen Fiscal */}
-                <col style={{ width: '190px' }} /> {/* CURP */}
-                <col style={{ width: '130px' }} /> {/* Tipo Empresa */}
+                <col style={{ width: '105px' }} /> {/* Clave Cliente */}
+                <col style={{ width: '420px' }} /> {/* Razón Social */}
+                <col style={{ width: '145px' }} /> {/* RFC */}
+                <col style={{ width: '280px' }} /> {/* Régimen Fiscal */}
+                <col style={{ width: '195px' }} /> {/* CURP */}
+                <col style={{ width: '150px' }} /> {/* Tipo Empresa */}
                 <col style={{ width: '115px' }} /> {/* Estatus */}
-                <col style={{ width: '130px' }} /> {/* Saldo */}
-                <col style={{ width: '130px' }} /> {/* Teléfono */}
-                <col style={{ width: '200px' }} /> {/* Página Web */}
-                <col style={{ width: '190px' }} /> {/* Calle */}
-                <col style={{ width: '90px' }} />  {/* Núm. Ext */}
-                <col style={{ width: '90px' }} />  {/* Núm. Int */}
-                <col style={{ width: '160px' }} /> {/* Colonia */}
+                <col style={{ width: '135px' }} /> {/* Saldo */}
+                <col style={{ width: '135px' }} /> {/* Teléfono */}
+                <col style={{ width: '220px' }} /> {/* Página Web */}
+                <col style={{ width: '240px' }} /> {/* Calle */}
+                <col style={{ width: '95px' }} />  {/* Núm. Ext */}
+                <col style={{ width: '95px' }} />  {/* Núm. Int */}
+                <col style={{ width: '210px' }} /> {/* Colonia */}
                 <col style={{ width: '90px' }} />  {/* C.P. */}
-                <col style={{ width: '170px' }} /> {/* Municipio / Población */}
-                <col style={{ width: '140px' }} /> {/* Estado */}
-                <col style={{ width: '90px' }} />  {/* País */}
+                <col style={{ width: '200px' }} /> {/* Municipio / Población */}
+                <col style={{ width: '160px' }} /> {/* Estado */}
+                <col style={{ width: '100px' }} /> {/* País */}
                 <col style={{ width: '120px' }} /> {/* Acciones */}
               </colgroup>
               <thead>
@@ -319,7 +319,7 @@ export default function ClientesEjecutiva({ user, onLogout, activeTab = 'cliente
                       <td>{renderCell(c, 'regimen_fiscal')}</td>
                       <td>{renderCell(c, 'curp')}</td>
                       <td>{renderCell(c, 'tipo_empresa', ['MATRIZ', 'SUCURSAL'])}</td>
-                      <td>{renderCell(c, 'estatus', ['ACTIVO', 'PENDIENTE', 'INACTIVO'])}</td>
+                      <td>{renderCell(c, 'estatus', ['ACTIVO', 'SEGUIMIENTO', 'UNICO'])}</td>
                       <td>{renderCell(c, 'saldo')}</td>
                       <td>{renderCell(c, 'telefono')}</td>
                       <td>{renderCell(c, 'pagina_web')}</td>

@@ -144,52 +144,51 @@ export default function CoreLicencias() {
         </Button>
       </header>
 
-      {/* Métricas de Cupo */}
-      <div className="core-kpi-grid">
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Asientos Contratados</span>
-            <div className="core-kpi-icon blue">
-              <KeyIcon />
-            </div>
+      {/* Métricas de Cupo en Stat Pills compactos */}
+      <div className="core-stat-bar">
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap blue">
+            <KeyIcon />
           </div>
-          <div className="core-kpi-value">{totalAsientos}</div>
-          <div className="core-kpi-foot">Capacidad máxima global en todas las áreas</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Contratados:</span>
+            <span className="core-stat-val">{totalAsientos}</span>
+            <span className="core-stat-extra">asientos</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Asientos Ocupados</span>
-            <div className="core-kpi-icon green">
-              <KeyIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap green">
+            <KeyIcon />
           </div>
-          <div className="core-kpi-value">{totalAsignados}</div>
-          <div className="core-kpi-foot">Usuarios actualmente vinculados con licencia activa</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Ocupados:</span>
+            <span className="core-stat-val">{totalAsignados}</span>
+            <span className="core-stat-extra">activos</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Cupo Disponible</span>
-            <div className="core-kpi-icon purple">
-              <KeyIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap purple">
+            <KeyIcon />
           </div>
-          <div className="core-kpi-value">{disponibles}</div>
-          <div className="core-kpi-foot">Licencias libres para nuevos colaboradores</div>
+          <div className="core-stat-content">
+            <span className="core-stat-label">Disponibles:</span>
+            <span className="core-stat-val">{disponibles}</span>
+            <span className="core-stat-extra">libres</span>
+          </div>
         </div>
 
-        <div className="core-kpi-card">
-          <div className="core-kpi-top">
-            <span className="core-kpi-label">Tasa de Ocupación</span>
-            <div className="core-kpi-icon amber">
-              <KeyIcon />
-            </div>
+        <div className="core-stat-pill">
+          <div className="core-stat-icon-wrap amber">
+            <KeyIcon />
           </div>
-          <div className="core-kpi-value">
-            {totalAsientos > 0 ? `${Math.round((totalAsignados / totalAsientos) * 100)}%` : '0%'}
+          <div className="core-stat-content">
+            <span className="core-stat-label">Ocupación:</span>
+            <span className="core-stat-val">
+              {totalAsientos > 0 ? `${Math.round((totalAsignados / totalAsientos) * 100)}%` : '0%'}
+            </span>
           </div>
-          <div className="core-kpi-foot">Nivel de aprovechamiento de licencias</div>
         </div>
       </div>
 

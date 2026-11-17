@@ -1,0 +1,255 @@
+/* =========================================================
+   Cotizaciones.css - Estilos para Cotizaciones y Modelos Analíticos
+   ========================================================= */
+
+.cotizaciones-container {
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cotizaciones-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cotizaciones-titulo h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.cotizaciones-subtitulo {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* =========================================================
+   BADGES DE ESTATUS DE COTIZACIONES
+   ========================================================= */
+.status-cot {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-cot.aprobada {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.status-cot.pendiente {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.status-cot.borrador {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.status-cot.vencida {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* =========================================================
+   BADGES DE MATRIZ ANALÍTICA
+   ========================================================= */
+.matriz-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.matriz-badge.aguas {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.matriz-badge.emisiones {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.matriz-badge.laborales {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.matriz-badge.alimentos {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+/* =========================================================
+   MODAL DE CREACIÓN DE COTIZACIÓN
+   ========================================================= */
+.modal-cotizacion-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 680px;
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.2);
+  box-sizing: border-box;
+}
+
+.desglose-financiero-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 14px;
+}
+
+.desglose-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 13px;
+  color: #475569;
+}
+
+.desglose-fila.total {
+  border-top: 1px solid #cbd5e1;
+  margin-top: 8px;
+  padding-top: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* =========================================================
+   DINÁMICA: MODELO EXCLUSIVO (CLIENTE ÚNICO)
+   ========================================================= */
+.banner-cliente-unico {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.banner-cliente-unico-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: #7c3aed;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.banner-cliente-unico-text {
+  font-size: 12.5px;
+  color: #4c1d95;
+  line-height: 1.45;
+}
+
+.banner-cliente-unico-text strong {
+  font-weight: 700;
+  color: #3b0764;
+}
+
+.toggle-modelo-exclusivo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #faf5ff;
+  border: 1px dashed #c084fc;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-modelo-exclusivo:hover {
+  background-color: #f3e8ff;
+  border-color: #a855f7;
+}
+
+.toggle-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-label-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b21a8;
+}
+
+.caja-modelo-exclusivo {
+  background-color: #faf5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.caja-modelo-exclusivo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f3e8ff;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.caja-modelo-exclusivo-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #581c87;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.badge-modelo-unico {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  width: fit-content;
+}

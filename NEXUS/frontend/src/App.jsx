@@ -4,6 +4,7 @@ import AuthForm from './components/AuthForm.jsx';
 import ClientesEjecutiva from './components/ejecutiva/ClientesEjecutiva.jsx';
 import ListaGeneralEjecutiva from './components/ejecutiva/ListaGeneralEjecutiva.jsx';
 import CotizacionEjecutiva from './components/ejecutiva/CotizacionEjecutiva.jsx';
+import ModelosEjecutiva from './components/ejecutiva/ModelosEjecutiva.jsx';
 import CoreControlShell from './components/core-control/CoreControlShell.jsx';
 import { getActiveSession, clearAuthSession, parseJwt } from './services/auth.js';
 
@@ -73,6 +74,13 @@ function App() {
             />
           ) : activeTab === 'cotizaciones' ? (
             <CotizacionEjecutiva
+              user={session.user}
+              onLogout={handleLogout}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+          ) : activeTab === 'modelos' ? (
+            <ModelosEjecutiva
               user={session.user}
               onLogout={handleLogout}
               activeTab={activeTab}
