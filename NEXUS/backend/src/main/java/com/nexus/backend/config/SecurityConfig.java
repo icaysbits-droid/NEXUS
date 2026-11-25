@@ -39,14 +39,23 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 4. Configuración de rutas públicas y protegidas
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas de autenticación (Login, Registro, etc.)
-                .requestMatchers("/api/auth/**").permitAll()
+                // Únicamente el endpoint de login es público
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/login").permitAll()
                 // Permitir peticiones pre-flight de CORS (OPTIONS)
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                // Rutas de Super Administración (Bitácora de Auditoría Core) restringidas a SUPER_ADMIN
-                .requestMatchers("/api/core/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "SUPER_ADMIN")
-                // Endpoints de clientes y demás recursos requieren autenticación JWT
-                .requestMatchers("/api/clientes/**").authenticated()
+                // Gestión de usuarios y bitácora Core restringidas a Administración / TI
+                .requestMatchers("/api/auth/register", "/api/auth/users")
+                    .hasAnyAuthority("ROLE_SUPER_ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ADMIN")
+                .requestMatchers("/api/core/**")
+                    .hasAnyAuthority("ROLE_SUPER_ADMIN", "SUPER_ADMIN")
+                // Módulos comerciales internos: principio de mínimo privilegio (excluye rol CLIENTE B2B)
+                .requestMatchers("/api/clientes/**", "/api/modelos-cotizacion/**", "/api/cotizaciones/**", "/api/notas-cotizacion/**")
+                    .hasAnyAuthority(
+                        "ROLE_SUPER_ADMIN", "SUPER_ADMIN",
+                        "ROLE_ADMIN", "ADMIN",
+                        "ROLE_JEFA_VENTAS", "JEFA_VENTAS",
+                        "ROLE_EJECUTIVA", "EJECUTIVA"
+                    )
                 .anyRequest().authenticated()
             )
             // 5. Interceptar con nuestro filtro JWT antes del filtro de usuario/contraseña

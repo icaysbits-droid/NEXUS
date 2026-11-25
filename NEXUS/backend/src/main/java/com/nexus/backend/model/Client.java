@@ -54,26 +54,26 @@ public class Client {
     @Column(name = "clave_cliente", unique = true, length = 30)
     private String claveCliente; // Clave interna del cliente (ej: CLI-001) - FILTRABLE
 
-    @Column(name = "razon_social", nullable = false, length = 200)
+    @Column(name = "razon_social", length = 200)
     private String razonSocial; // Nombre comercial o razón social fiscal - FILTRABLE
 
-    @Column(name = "rfc", nullable = false, length = 13)
+    @Column(name = "rfc", length = 13)
     private String rfc; // RFC con homoclave (12 o 13 caracteres) - FILTRABLE
 
     @Column(name = "curp", length = 18)
     private String curp; // CURP para Persona Física - FILTRABLE
 
-    @Column(name = "regimen_fiscal", nullable = false, length = 10)
+    @Column(name = "regimen_fiscal", length = 10)
     private String regimenFiscal; // Clave de régimen fiscal SAT (ej: 601)
 
     // --- DIRECCIÓN Y LOCALIZACIÓN FISCAL ---
     @Column(name = "calle", length = 150)
     private String calle;
 
-    @Column(name = "num_exterior", length = 20)
+    @Column(name = "num_exterior", length = 150)
     private String numExterior;
 
-    @Column(name = "num_interior", length = 20)
+    @Column(name = "num_interior", length = 150)
     private String numInterior;
 
     @Column(name = "entre_calle", length = 150)
@@ -82,7 +82,7 @@ public class Client {
     @Column(name = "y_calle", length = 150)
     private String yCalle;
 
-    @Column(name = "codigo_postal", nullable = false, length = 10)
+    @Column(name = "codigo_postal", length = 10)
     private String codigoPostal; // Código Postal fiscal (5 dígitos)
 
     @Column(name = "colonia", length = 100)
@@ -98,7 +98,7 @@ public class Client {
     private String estado;
 
     @Builder.Default
-    @Column(name = "pais", nullable = false, length = 10)
+    @Column(name = "pais", length = 10)
     private String pais = "MEX"; // Clave país (Default: MEX)
 
     @Column(name = "nacionalidad", length = 50)
@@ -127,7 +127,7 @@ public class Client {
 
     @Builder.Default
     @Column(name = "estatus", length = 30)
-    private String estatus = "ACTIVO"; // ACTIVO, INACTIVO, PENDIENTE
+    private String estatus = "ACTIVO"; // ACTIVO, SEGUIMIENTO, UNICO
 
     // --- ASIGNACIÓN Y AUDITORÍA ---
     @ManyToOne(fetch = FetchType.LAZY)

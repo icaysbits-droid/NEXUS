@@ -15,61 +15,69 @@ import java.util.UUID;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, UUID> {
 
-    // --- BÚSQUEDAS EXACTAS / UNICIDAD ---
-    Optional<Client> findByClaveCliente(String claveCliente);
-    Optional<Client> findByRfc(String rfc);
-    Optional<Client> findByCurp(String curp);
+       // --- BÚSQUEDAS EXACTAS / UNICIDAD ---
+       Optional<Client> findByClaveCliente(String claveCliente);
 
-    boolean existsByClaveCliente(String claveCliente);
-    boolean existsByRfc(String rfc);
-    boolean existsByCurp(String curp);
+       Optional<Client> findByRfc(String rfc);
 
-    // --- FILTRADO INDIVIDUAL POR COINCIDENCIA PARCIAL ---
-    List<Client> findByClaveClienteContainingIgnoreCase(String claveCliente);
-    List<Client> findByRazonSocialContainingIgnoreCase(String razonSocial);
-    List<Client> findByRfcContainingIgnoreCase(String rfc);
-    List<Client> findByCurpContainingIgnoreCase(String curp);
+       Optional<Client> findByCurp(String curp);
 
-    // --- BÚSQUEDA GLOBAL MULTICAMPO (clave, razón social, RFC o CURP) ---
-    @Query("SELECT c FROM Client c WHERE " +
-           "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%')))")
-    List<Client> buscarPorCriterio(@Param("filtro") String filtro);
+       boolean existsByClaveCliente(String claveCliente);
 
-    // --- BÚSQUEDA GLOBAL CON PAGINACIÓN ---
-    @Query("SELECT c FROM Client c WHERE " +
-           "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%')))")
-    Page<Client> buscarPorCriterioPaginado(@Param("filtro") String filtro, Pageable pageable);
+       boolean existsByRfc(String rfc);
 
-    // --- BÚSQUEDA GLOBAL FILTRADA POR EJECUTIVA ASIGNADA ---
-    @Query("SELECT c FROM Client c WHERE c.ejecutivaAsignada.id = :ejecutivaId AND (" +
-           "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%'))))")
-    List<Client> buscarPorEjecutivaYCriterio(@Param("ejecutivaId") Long ejecutivaId, @Param("filtro") String filtro);
+       boolean existsByCurp(String curp);
 
-    @Query("SELECT c FROM Client c WHERE c.ejecutivaAsignada.id = :ejecutivaId AND (" +
-           "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
-           "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%'))))")
-    Page<Client> buscarPorEjecutivaYCriterioPaginado(
-            @Param("ejecutivaId") Long ejecutivaId,
-            @Param("filtro") String filtro,
-            Pageable pageable
-    );
+       // --- FILTRADO INDIVIDUAL POR COINCIDENCIA PARCIAL ---
+       List<Client> findByClaveClienteContainingIgnoreCase(String claveCliente);
 
-    // Clientes asignados a una ejecutiva
-    List<Client> findByEjecutivaAsignadaId(Long ejecutivaId);
-    Page<Client> findByEjecutivaAsignadaId(Long ejecutivaId, Pageable pageable);
+       List<Client> findByRazonSocialContainingIgnoreCase(String razonSocial);
 
-    // Obtener las claves existentes más altas con prefijo CLI- para cálculo correlativo
-    @Query("SELECT c.claveCliente FROM Client c WHERE c.claveCliente LIKE 'CLI-%' ORDER BY c.claveCliente DESC")
-    List<String> findUltimasClaves(Pageable pageable);
+       List<Client> findByRfcContainingIgnoreCase(String rfc);
+
+       List<Client> findByCurpContainingIgnoreCase(String curp);
+
+       // --- BÚSQUEDA GLOBAL MULTICAMPO (clave, razón social, RFC o CURP) ---
+       @Query("SELECT c FROM Client c WHERE " +
+                     "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%')))")
+       List<Client> buscarPorCriterio(@Param("filtro") String filtro);
+
+       // --- BÚSQUEDA GLOBAL CON PAGINACIÓN ---
+       @Query("SELECT c FROM Client c WHERE " +
+                     "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%')))")
+       Page<Client> buscarPorCriterioPaginado(@Param("filtro") String filtro, Pageable pageable);
+
+       // --- BÚSQUEDA GLOBAL FILTRADA POR EJECUTIVA ASIGNADA ---
+       @Query("SELECT c FROM Client c WHERE c.ejecutivaAsignada.id = :ejecutivaId AND (" +
+                     "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%'))))")
+       List<Client> buscarPorEjecutivaYCriterio(@Param("ejecutivaId") Long ejecutivaId, @Param("filtro") String filtro);
+
+       @Query("SELECT c FROM Client c WHERE c.ejecutivaAsignada.id = :ejecutivaId AND (" +
+                     "LOWER(c.claveCliente) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "LOWER(c.rfc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
+                     "(c.curp IS NOT NULL AND LOWER(c.curp) LIKE LOWER(CONCAT('%', :filtro, '%'))))")
+       Page<Client> buscarPorEjecutivaYCriterioPaginado(
+                     @Param("ejecutivaId") Long ejecutivaId,
+                     @Param("filtro") String filtro,
+                     Pageable pageable);
+
+       // Clientes asignados a una ejecutiva
+       List<Client> findByEjecutivaAsignadaId(Long ejecutivaId);
+
+       Page<Client> findByEjecutivaAsignadaId(Long ejecutivaId, Pageable pageable);
+
+       // Obtener las claves existentes más altas con prefijo CLI- para cálculo
+       // correlativo
+       @Query("SELECT c.claveCliente FROM Client c WHERE c.claveCliente LIKE 'CLI-%' ORDER BY c.claveCliente DESC")
+       List<String> findUltimasClaves(Pageable pageable);
 }

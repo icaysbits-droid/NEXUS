@@ -27,33 +27,17 @@ public class AuditService {
     private final UserAgentAnalyzer userAgentAnalyzer;
 
     /**
-     * Extrae la dirección IP real del cliente considerando proxies inversos (Nginx, Docker, Cloudflare).
-     * Orden de evaluación:
-     * 1. X-Forwarded-For
-     * 2. X-Real-IP
-     * 3. request.getRemoteAddr()
+     * Extrae la dirección IP del cliente de forma segura.
+     * La resolución de proxies confiables se delega a Spring (server.forward-headers-strategy=framework),
+     * evitando confiar ciegamente en cabeceras X-Forwarded-For / X-Real-IP falsificables por el cliente.
      */
     public String obtenerIpReal(HttpServletRequest request) {
         if (request == null) {
             return "127.0.0.1";
         }
 
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isBlank() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
-            // Si pasa por múltiples proxies, la primera IP es la del cliente original
-            String firstIp = xForwardedFor.split(",")[0].trim();
-            if (!firstIp.isEmpty()) {
-                return normalizarLoopback(firstIp);
-            }
-        }
-
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isBlank() && !"unknown".equalsIgnoreCase(xRealIp)) {
-            return normalizarLoopback(xRealIp.trim());
-        }
-
         String remoteAddr = request.getRemoteAddr();
-        return normalizarLoopback(remoteAddr != null ? remoteAddr : "Desconocida");
+        return normalizarLoopback(remoteAddr != null && !remoteAddr.isBlank() ? remoteAddr.trim() : "Desconocida");
     }
 
     private String normalizarLoopback(String ip) {
@@ -110,9 +94,11 @@ public class AuditService {
             if (request != null) {
                 String uaHeader = request.getHeader("User-Agent");
                 if (uaHeader != null && !uaHeader.isBlank()) {
+                    // Truncar User-Agent a 256 caracteres para evitar abuso de CPU/memoria en Yauaa
+                    String safeUa = uaHeader.length() > 256 ? uaHeader.substring(0, 256) : uaHeader;
                     UserAgent parsedUa;
                     synchronized (userAgentAnalyzer) {
-                        parsedUa = userAgentAnalyzer.parse(uaHeader);
+                        parsedUa = userAgentAnalyzer.parse(safeUa);
                     }
                     dispositivo = limpiarValorYauaa(parsedUa.getValue("DeviceClass"), "Desktop");
                     sistemaOperativo = limpiarValorYauaa(parsedUa.getValue("OperatingSystemNameVersion"), "SO Desconocido");

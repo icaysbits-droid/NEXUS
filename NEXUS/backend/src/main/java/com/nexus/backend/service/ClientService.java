@@ -169,6 +169,13 @@ public class ClientService {
      */
     @Transactional
     public Client guardar(Client client, Users usuarioActual) {
+        if (client.getRazonSocial() == null || client.getRazonSocial().trim().isEmpty()) {
+            client.setRazonSocial("PROSPECTO PENDIENTE");
+        }
+        if (client.getEstatus() == null || client.getEstatus().trim().isEmpty()) {
+            client.setEstatus("ACTIVO");
+        }
+
         // En alta nueva, registrar quién lo creó
         if (client.getId() == null) {
             client.setCreadoPor(usuarioActual);
@@ -180,36 +187,79 @@ public class ClientService {
                 client.setClaveCliente(client.getClaveCliente().trim().toUpperCase());
             }
 
-            // Si una ejecutiva lo registra y no viene ejecutiva explícita, se le autoasigna
-            if (client.getEjecutivaAsignada() == null && !tieneAccesoGlobal(usuarioActual)) {
+            // Forzar incondicionalmente la cartera propia para usuarios sin acceso global
+            if (!tieneAccesoGlobal(usuarioActual)) {
                 client.setEjecutivaAsignada(usuarioActual);
             }
-        } else {
-            // Si es edición por una ejecutiva, validar que sea su cliente
-            if (!tieneAccesoGlobal(usuarioActual)) {
-                Client existente = clientRepository.findById(client.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("El cliente a editar no existe."));
-                if (existente.getEjecutivaAsignada() == null ||
-                    !existente.getEjecutivaAsignada().getId().equals(usuarioActual.getId())) {
-                    throw new AccessDeniedException("No puedes modificar un cliente que no pertenece a tu cartera.");
-                }
-            }
-            if (client.getClaveCliente() != null) {
-                client.setClaveCliente(client.getClaveCliente().trim().toUpperCase());
+            return clientRepository.save(client);
+        }
+
+        // Edición de cliente existente: copiar solo campos permitidos (previene Mass Assignment)
+        Client existente = clientRepository.findById(client.getId())
+                .orElseThrow(() -> new IllegalArgumentException("El cliente a editar no existe."));
+
+        boolean esGlobal = tieneAccesoGlobal(usuarioActual);
+        if (!esGlobal) {
+            if (existente.getEjecutivaAsignada() == null ||
+                !existente.getEjecutivaAsignada().getId().equals(usuarioActual.getId())) {
+                throw new AccessDeniedException("No puedes modificar un cliente que no pertenece a tu cartera.");
             }
         }
 
-        return clientRepository.save(client);
+        existente.setRazonSocial(client.getRazonSocial());
+        existente.setRegimenFiscal(client.getRegimenFiscal());
+        existente.setCurp(client.getCurp());
+        existente.setTipoEmpresa(client.getTipoEmpresa());
+        existente.setEstatus(client.getEstatus());
+        existente.setTelefono(client.getTelefono());
+        existente.setFax(client.getFax());
+        existente.setPaginaWeb(client.getPaginaWeb());
+        existente.setCalle(client.getCalle());
+        existente.setNumExterior(client.getNumExterior());
+        existente.setNumInterior(client.getNumInterior());
+        existente.setColonia(client.getColonia());
+        existente.setCodigoPostal(client.getCodigoPostal());
+        existente.setMunicipio(client.getMunicipio());
+        existente.setEstado(client.getEstado());
+        existente.setPais(client.getPais());
+
+        // Campos sensibles/fiscales solo editables por roles con acceso global (Admin / Jefa de Ventas)
+        if (esGlobal) {
+            if (client.getClaveCliente() != null && !client.getClaveCliente().isBlank()) {
+                existente.setClaveCliente(client.getClaveCliente().trim().toUpperCase());
+            }
+            if (client.getRfc() != null && !client.getRfc().isBlank()) {
+                existente.setRfc(client.getRfc().trim().toUpperCase());
+            }
+            if (client.getSaldo() != null) {
+                existente.setSaldo(client.getSaldo());
+            }
+            if (client.getEjecutivaAsignada() != null) {
+                existente.setEjecutivaAsignada(client.getEjecutivaAsignada());
+            }
+        }
+
+        return clientRepository.save(existente);
     }
 
     /**
-     * Eliminación de cliente (reservado para Jefa de Ventas o Administradores).
+     * Eliminación de cliente.
+     * Permite la baja a usuarios con acceso global o a la ejecutiva asignada a la cuenta.
      */
     @Transactional
     public void eliminar(UUID id, Users usuarioActual) {
-        if (!tieneAccesoGlobal(usuarioActual)) {
-            throw new AccessDeniedException("Solo la Jefa de Ventas o los Administradores pueden dar de baja un cliente.");
+        if (usuarioActual == null) {
+            throw new AccessDeniedException("Usuario no autenticado.");
         }
-        clientRepository.deleteById(id);
+        Client cliente = clientRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("El cliente a eliminar no existe."));
+
+        if (!tieneAccesoGlobal(usuarioActual)) {
+            if (cliente.getEjecutivaAsignada() != null &&
+                !cliente.getEjecutivaAsignada().getId().equals(usuarioActual.getId())) {
+                throw new AccessDeniedException("No tienes autorización para eliminar un cliente que no pertenece a tu cartera.");
+            }
+        }
+        clientRepository.delete(cliente);
     }
 }

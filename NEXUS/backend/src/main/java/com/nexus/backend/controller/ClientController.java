@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -38,11 +39,16 @@ import java.util.UUID;
 )
 public class ClientController {
 
+    private static final int MAX_PAGE_SIZE = 100;
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "razonSocial", "claveCliente", "rfc", "estatus", "createdAt", "updatedAt"
+    );
+
     private final ClientService clientService;
     private final LectorPdFService lectorPdFService;
     private final AuditService auditService;
 
-    // 1. Listar clientes (con soporte para paginación opcional)
+    // 1. Listar clientes (con soporte para paginación opcional acotada)
     // GET /api/clientes o GET /api/clientes?page=0&size=20
     @GetMapping
     public ResponseEntity<?> listar(
@@ -56,7 +62,10 @@ public class ClientController {
         }
 
         if (page != null && size != null) {
-            Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
+            int safePage = Math.max(page, 0);
+            int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+            String safeSort = ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "razonSocial";
+            Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by(safeSort).ascending());
             Page<Client> resultado = clientService.listarPaginado(currentUser, pageable);
             return ResponseEntity.ok(resultado);
         }
@@ -79,7 +88,9 @@ public class ClientController {
         }
 
         if (page != null && size != null) {
-            Pageable pageable = PageRequest.of(page, size, Sort.by("razonSocial").ascending());
+            int safePage = Math.max(page, 0);
+            int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+            Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by("razonSocial").ascending());
             Page<Client> resultado = clientService.buscarPaginado(criterio, currentUser, pageable);
             return ResponseEntity.ok(resultado);
         }
@@ -234,7 +245,7 @@ public class ClientController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al procesar el archivo PDF: " + e.getMessage()));
+                    .body(Map.of("error", "Error interno al procesar el archivo PDF."));
         }
     }
 }

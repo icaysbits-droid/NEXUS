@@ -14,13 +14,18 @@ COPY src src/
 RUN ./mvnw clean package -DskipTests
 
 # ==========================================
-# Etapa 2: Imagen final ligera (JRE 21)
+# Etapa 2: Imagen final ligera (JRE 21) sin privilegios root
 # ==========================================
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copiamos solo el ejecutable JAR compilado
-COPY --from=builder /app/target/*.jar app.jar
+# Crear usuario dedicado sin privilegios root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copiamos solo el ejecutable JAR compilado con permisos del usuario dedicado
+COPY --from=builder --chown=appuser:appgroup /app/target/*.jar app.jar
+
+USER appuser
 
 EXPOSE 8080
 

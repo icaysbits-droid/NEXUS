@@ -1,5 +1,6 @@
 package com.nexus.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -48,6 +49,7 @@ public class Users {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
 
@@ -82,9 +84,11 @@ public class Users {
     private Boolean superUsuario = false; // Exclusivo de TI: permite bypass total ante bloqueos o licencias
 
     // --- FIRMA AUTÓGRAFA DIGITAL (COTIZACIONES Y VALIDACIÓN VEF-20) ---
+    @JsonIgnore
     @Column(name = "firma_autografa_url", length = 500)
     private String firmaAutografaUrl; // Ruta del PNG de la firma autógrafa con fondo transparente
 
+    @JsonIgnore
     @Column(name = "firma_hash_seguridad", length = 255)
     private String firmaHashSeguridad; // Hash criptográfico de verificación para sellar documentos PDF
 

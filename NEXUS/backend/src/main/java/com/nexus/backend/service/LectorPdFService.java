@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,8 +22,13 @@ import java.util.regex.Pattern;
 @Slf4j
 public class LectorPdFService {
 
+    private static final long MAX_PDF_BYTES = 5L * 1024 * 1024; // 5 MB
+    private static final int MAX_CSF_PAGES = 10;
+    private static final Map<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
+
     /**
      * Procesa el archivo PDF de la CSF y extrae los datos fiscales y de localización.
+     * Valida tamaño máximo, magic bytes (%PDF-) y límite de páginas para prevenir DoS/OOM.
      *
      * @param file Archivo PDF enviado desde el cliente
      * @return Map con los campos normalizados para el formulario de cliente
@@ -31,17 +37,45 @@ public class LectorPdFService {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("El archivo PDF está vacío o no fue proporcionado.");
         }
+        if (file.getSize() > MAX_PDF_BYTES) {
+            throw new IllegalArgumentException("El archivo PDF excede el tamaño máximo permitido (5 MB).");
+        }
+
+        byte[] bytes = file.getBytes();
+        // Validar magic bytes "%PDF-" (0x25 0x50 0x44 0x46 0x2D)
+        if (bytes.length < 5
+                || bytes[0] != 0x25
+                || bytes[1] != 0x50
+                || bytes[2] != 0x44
+                || bytes[3] != 0x46
+                || bytes[4] != 0x2D) {
+            throw new IllegalArgumentException("El archivo cargado no corresponde a un documento PDF válido.");
+        }
 
         String textoPosicion;
         String textoFlujo;
-        try (PDDocument document = Loader.loadPDF(file.getBytes())) {
+        try (PDDocument document = Loader.loadPDF(bytes)) {
+            int totalPages = document.getNumberOfPages();
+            if (totalPages == 0) {
+                throw new IllegalArgumentException("El archivo PDF no contiene páginas legibles.");
+            }
+            if (totalPages > MAX_CSF_PAGES) {
+                throw new IllegalArgumentException("La CSF excede el límite máximo permitido de " + MAX_CSF_PAGES + " páginas.");
+            }
+
+            int endPage = Math.min(totalPages, MAX_CSF_PAGES);
+
             // Extracción por posición visual (ideal para filas alineadas)
             PDFTextStripper stripperPos = new PDFTextStripper();
+            stripperPos.setStartPage(1);
+            stripperPos.setEndPage(endPage);
             stripperPos.setSortByPosition(true);
             textoPosicion = stripperPos.getText(document);
 
             // Extracción por flujo de celdas (ideal cuando una etiqueta salta a 2 renglones en tablas)
             PDFTextStripper stripperFlujo = new PDFTextStripper();
+            stripperFlujo.setStartPage(1);
+            stripperFlujo.setEndPage(endPage);
             stripperFlujo.setSortByPosition(false);
             textoFlujo = stripperFlujo.getText(document);
         }
@@ -215,11 +249,14 @@ public class LectorPdFService {
     }
 
     /**
-     * Helper para extraer cadenas con Regex limpiando espacios extra.
+     * Helper para extraer cadenas con Regex precompilado y cacheado, limpiando espacios extra.
      */
     private String extraerRegex(String texto, String patronRegex) {
         if (texto == null || texto.isEmpty()) return "";
-        Pattern p = Pattern.compile(patronRegex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        Pattern p = PATTERN_CACHE.computeIfAbsent(
+                patronRegex,
+                k -> Pattern.compile(k, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+        );
         Matcher m = p.matcher(texto);
         if (m.find()) {
             return m.group(1).trim();
