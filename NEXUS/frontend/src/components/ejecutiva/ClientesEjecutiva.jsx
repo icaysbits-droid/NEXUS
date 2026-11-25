@@ -333,15 +333,6 @@ export default function ClientesEjecutiva({ user, onLogout, activeTab = 'cliente
                       <td>{renderCell(c, 'pais')}</td>
                       <td>
                         <div className="table-actions">
-                          <Tooltip title="Editar cliente" arrow>
-                            <IconButton
-                              size="small"
-                              className="table-btn edit-btn"
-                              onClick={() => handleStartEdit(c, 'razon_social')}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
                           <Tooltip title="Generar enlace VEF-20" arrow>
                             <IconButton size="small" className="table-btn link-btn">
                               <LinkIcon />

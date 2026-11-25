@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import EjecutivaNav from './EjecutivaNav';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import SvgIcon from '@mui/material/SvgIcon';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
+import ModeloDrawer from './ModeloDrawer';
+import { useModelCot } from '../../hooks/useModelCot';
 import '../../css/EjecutivaDashboard.css';
 import '../../css/ListaGeneral.css';
 import '../../css/core_control.css';
@@ -29,139 +29,205 @@ function PlusIcon(props) {
   );
 }
 
-export const MODELOS_CATALOGO_2025 = [
-  {
-    id: 'mod-001',
-    folioModelo: 'LA05484',
-    matriz: 'AGUAS',
-    norma: 'NOM-001-SEMARNAT-2021',
-    modalidad: 'Puntual',
-    descripcion: 'Análisis Físico-Químico Completo (Descargas a Cuerpos Receptores)',
-    precioBase: 8450.00,
-    anioVigencia: 2025,
-    activo: true
-  },
-  {
-    id: 'mod-002',
-    folioModelo: 'LA05485',
-    matriz: 'AGUAS',
-    norma: 'NOM-002-SEMARNAT-1996',
-    modalidad: 'Compuesta 24h',
-    descripcion: 'Descargas de aguas residuales a sistemas de alcantarillado urbano',
-    precioBase: 12300.00,
-    anioVigencia: 2025,
-    activo: true
-  },
-  {
-    id: 'mod-003',
-    folioModelo: 'EM02145',
-    matriz: 'EMISIONES',
-    norma: 'NOM-085-SEMARNAT-2011',
-    modalidad: 'Fuentes Fijas',
-    descripcion: 'Contaminantes criterio en chimeneas (NOx, SO2, CO y Partículas Totales)',
-    precioBase: 16800.00,
-    anioVigencia: 2025,
-    activo: true
-  },
-  {
-    id: 'mod-004',
-    folioModelo: 'EM02146',
-    matriz: 'EMISIONES',
-    norma: 'NOM-043-SEMARNAT-1993',
-    modalidad: 'Isocinético',
-    descripcion: 'Partículas sólidas en gases de combustión por tren de muestreo EPA 5',
-    precioBase: 14200.00,
-    anioVigencia: 2025,
-    activo: true
-  },
-  {
-    id: 'mod-005',
-    folioModelo: 'LB01092',
-    matriz: 'LABORALES',
-    norma: 'NOM-011-STPS-2001',
-    modalidad: '1 Turno (8 horas)',
-    descripcion: 'Ruido laboral perimetral y dosimetrías por puesto de trabajo',
-    precioBase: 6900.00,
-    anioVigencia: 2025,
-    activo: true
-  },
-  {
-    id: 'mod-006',
-    folioModelo: 'LB01093',
-    matriz: 'LABORALES',
-    norma: 'NOM-025-STPS-2008',
-    modalidad: 'Evaluación Nocturna/Diurna',
-    descripcion: 'Niveles de iluminación y reflexión en áreas y puestos de trabajo',
-    precioBase: 5800.00,
-    anioVigencia: 2025,
-    activo: true
-  },
-  {
-    id: 'mod-007',
-    folioModelo: 'AL00841',
-    matriz: 'ALIMENTOS',
-    norma: 'NOM-127-SSA1-2021',
-    modalidad: 'Agua para Uso y Consumo Humano',
-    descripcion: 'Microbiología completa (Coliformes, E. Coli, Giardia) y metales pesados',
-    precioBase: 7800.00,
-    anioVigencia: 2025,
-    activo: true
-  }
-];
+function DeleteIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+    </SvgIcon>
+  );
+}
+
+function WarningAlertIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 24 }}>
+      <path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z" />
+    </SvgIcon>
+  );
+}
 
 export default function ModelosEjecutiva({ user, onLogout, activeTab = 'modelos', setActiveTab }) {
-  const [modelos, setModelos] = useState(MODELOS_CATALOGO_2025);
+  const {
+    modelCoti: modelos,
+    loading,
+    error,
+    createModeloCoti,
+    updateModeloCoti,
+    deleteModeloCoti,
+    loadModelos
+  } = useModelCot();
   const [busqueda, setBusqueda] = useState('');
   const [filtroMatriz, setFiltroMatriz] = useState('TODOS');
-  const [openModal, setOpenModal] = useState(false);
-  const [formData, setFormData] = useState({
-    folioModelo: '',
-    matriz: 'AGUAS',
-    norma: '',
-    modalidad: '',
-    descripcion: '',
-    precioBase: ''
-  });
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+  // Estado para el Modal de Confirmación de Eliminación
+  const [modeloAEliminar, setModeloAEliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
+
+  // Estado para Edición Inline en cada fila (Doble Clic)
+  const [editingCell, setEditingCell] = useState({ id: null, field: null });
+  const [editValue, setEditValue] = useState('');
 
   const filtrados = modelos.filter((m) => {
     const q = busqueda.toLowerCase().trim();
     const matchText =
       !q ||
-      m.folioModelo.toLowerCase().includes(q) ||
-      m.norma.toLowerCase().includes(q) ||
-      m.descripcion.toLowerCase().includes(q);
+      (m.folioModelo || '').toLowerCase().includes(q) ||
+      (m.norma || '').toLowerCase().includes(q) ||
+      (m.descripcion || '').toLowerCase().includes(q);
 
     const matchMatriz = filtroMatriz === 'TODOS' || m.matriz === filtroMatriz;
     return matchText && matchMatriz;
   });
 
-  const handleCrear = (e) => {
-    e.preventDefault();
-    const folioGenerado = formData.folioModelo?.trim()
-      ? formData.folioModelo.trim().toUpperCase()
-      : `MOD-${Date.now().toString().slice(-5)}`;
+  // Manejo de inicio de edición inline
+  const handleStartEdit = (modelo, field) => {
+    if (field === 'folioModelo') return; // Folio de negocio protegido
+    setEditingCell({ id: modelo.id, field });
+    if (field === 'activo') {
+      setEditValue(modelo.activo !== false ? 'ACTIVO' : 'INACTIVO');
+    } else {
+      setEditValue(modelo[field] ?? '');
+    }
+  };
 
-    const nuevo = {
-      id: `mod-${Date.now()}`,
-      folioModelo: folioGenerado,
-      matriz: formData.matriz || 'AGUAS',
-      norma: formData.norma?.trim() || 'Por definir',
-      modalidad: formData.modalidad?.trim() || 'Estándar',
-      descripcion: formData.descripcion?.trim() || 'Paquete analítico preliminar',
-      precioBase: parseFloat(formData.precioBase) || 0,
-      anioVigencia: 2025,
-      activo: true
+  // Guardar cambio inline en el backend
+  const handleCommitEdit = async (id, field) => {
+    const modelo = modelos.find((m) => m.id === id);
+    if (!modelo) {
+      setEditingCell({ id: null, field: null });
+      return;
+    }
+
+    let val = editValue;
+    if (field === 'precioBase') {
+      const parsed = parseFloat(val);
+      val = isNaN(parsed) ? (modelo.precioBase ?? 0) : parsed;
+    } else if (field === 'anioVigencia') {
+      const parsed = parseInt(val, 10);
+      val = isNaN(parsed) ? (modelo.anioVigencia ?? 2025) : parsed;
+    } else if (field === 'activo') {
+      val = val === 'ACTIVO';
+    }
+
+    const valorActual = field === 'activo'
+      ? (modelo.activo !== false ? 'ACTIVO' : 'INACTIVO')
+      : (modelo[field] ?? '');
+
+    const valorComparar = field === 'activo'
+      ? (val ? 'ACTIVO' : 'INACTIVO')
+      : val;
+
+    if (String(valorActual) === String(valorComparar)) {
+      setEditingCell({ id: null, field: null });
+      return;
+    }
+
+    const payload = {
+      ...modelo,
+      [field]: val,
     };
-    setModelos([nuevo, ...modelos]);
-    setOpenModal(false);
-    setFormData({
-      folioModelo: '',
-      matriz: 'AGUAS',
-      norma: '',
-      modalidad: '',
-      descripcion: '',
-      precioBase: ''
-    });
+
+    try {
+      await updateModeloCoti(id, payload);
+    } catch (err) {
+      console.error('Error al actualizar modelo:', err);
+      alert('Error al guardar cambio: ' + (err.message || 'Error en el servidor'));
+    } finally {
+      setEditingCell({ id: null, field: null });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCell({ id: null, field: null });
+  };
+
+  // Renderizador de celdas con soporte de edición inline
+  const renderCell = (modelo, field, options = null) => {
+    const isEditing = editingCell.id === modelo.id && editingCell.field === field;
+    const isReadOnly = field === 'folioModelo';
+
+    if (isEditing) {
+      if (options) {
+        return (
+          <select
+            autoFocus
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={() => handleCommitEdit(modelo.id, field)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCommitEdit(modelo.id, field);
+              if (e.key === 'Escape') handleCancelEdit();
+            }}
+            className="inline-cell-select"
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        );
+      }
+      return (
+        <input
+          type={field === 'precioBase' || field === 'anioVigencia' ? 'number' : 'text'}
+          step={field === 'precioBase' ? '0.01' : undefined}
+          autoFocus
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={() => handleCommitEdit(modelo.id, field)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleCommitEdit(modelo.id, field);
+            if (e.key === 'Escape') handleCancelEdit();
+          }}
+          className="inline-cell-input"
+        />
+      );
+    }
+
+    if (field === 'matriz') {
+      const badgeClass = (modelo.matriz || 'aguas').toLowerCase();
+      return (
+        <div
+          className="editable-cell-wrapper"
+          onDoubleClick={() => handleStartEdit(modelo, field)}
+          title="Doble clic para editar matriz"
+        >
+          <span className={`matriz-badge ${badgeClass}`}>
+            {modelo.matriz || 'AGUAS'}
+          </span>
+        </div>
+      );
+    }
+
+    if (field === 'activo') {
+      const isActivo = modelo.activo !== false;
+      return (
+        <div
+          className="editable-cell-wrapper"
+          onDoubleClick={() => handleStartEdit(modelo, field)}
+          title="Doble clic para cambiar estatus"
+        >
+          <span className={`core-badge ${isActivo ? 'status-active' : 'status-inactive'}`}>
+            {isActivo ? 'ACTIVO' : 'INACTIVO'}
+          </span>
+        </div>
+      );
+    }
+
+    const valorCelda = modelo[field];
+
+    return (
+      <div
+        className={`editable-cell-wrapper ${isReadOnly ? 'read-only' : ''}`}
+        onDoubleClick={() => !isReadOnly && handleStartEdit(modelo, field)}
+        title={isReadOnly ? 'Folio de modelo no editable directamente' : 'Doble clic para editar'}
+      >
+        {field === 'precioBase'
+          ? `$${Number(valorCelda || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+          : valorCelda || '—'}
+      </div>
+    );
   };
 
   return (
@@ -177,9 +243,9 @@ export default function ModelosEjecutiva({ user, onLogout, activeTab = 'modelos'
         <div className="cotizaciones-container">
           <header className="cotizaciones-header">
             <div className="cotizaciones-titulo">
-              <h2>Catálogo Maestro de Modelos y Matrices 2025</h2>
+              <h2>Catálogo de Modelos y Matrices 2025</h2>
               <p className="cotizaciones-subtitulo">
-                Especificación técnica de paquetes analíticos normalizados, modalidades y precios base
+                Especificación técnica de paquetes analíticos normalizados (Doble clic en celdas para editar)
               </p>
             </div>
 
@@ -187,7 +253,7 @@ export default function ModelosEjecutiva({ user, onLogout, activeTab = 'modelos'
               variant="contained"
               size="small"
               startIcon={<PlusIcon />}
-              onClick={() => setOpenModal(true)}
+              onClick={() => setOpenDrawer(true)}
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
@@ -258,22 +324,36 @@ export default function ModelosEjecutiva({ user, onLogout, activeTab = 'modelos'
                   <option value="ALIMENTOS">Alimentos</option>
                 </select>
               </div>
-              <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>
-                {filtrados.length} modelos disponibles
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {error && (
+                  <Button size="small" variant="outlined" color="error" onClick={loadModelos} sx={{ textTransform: 'none', fontSize: '11.5px' }}>
+                    Reintentar
+                  </Button>
+                )}
+                <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>
+                  {loading ? 'Cargando...' : `${filtrados.length} modelos disponibles`}
+                </span>
+              </div>
             </div>
+
+            {error && (
+              <div style={{ padding: '10px 14px', backgroundColor: '#fef2f2', color: '#b91c1c', fontSize: '12.5px', borderBottom: '1px solid #fecaca' }}>
+                {error}
+              </div>
+            )}
 
             <div className="core-table-wrap">
               <table className="core-table">
                 <colgroup>
                   <col style={{ width: '125px' }} /> {/* Folio Modelo */}
-                  <col style={{ width: '120px' }} /> {/* Matriz */}
-                  <col style={{ width: '210px' }} /> {/* Norma Oficial */}
+                  <col style={{ width: '135px' }} /> {/* Matriz */}
+                  <col style={{ width: '220px' }} /> {/* Norma Oficial */}
                   <col style={{ width: '210px' }} /> {/* Modalidad */}
-                  <col style={{ minWidth: '460px' }} /> {/* Descripción del Paquete Analítico */}
+                  <col style={{ minWidth: '440px' }} /> {/* Descripción del Paquete Analítico */}
                   <col style={{ width: '150px' }} /> {/* Precio Base (MXN) */}
                   <col style={{ width: '100px' }} /> {/* Vigencia */}
                   <col style={{ width: '110px' }} /> {/* Estatus */}
+                  <col style={{ width: '85px' }} />  {/* Acciones */}
                 </colgroup>
                 <thead>
                   <tr>
@@ -285,128 +365,155 @@ export default function ModelosEjecutiva({ user, onLogout, activeTab = 'modelos'
                     <th>Precio Base (MXN)</th>
                     <th>Vigencia</th>
                     <th>Estatus</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtrados.map((m) => {
-                    const badgeClass = m.matriz.toLowerCase();
-                    return (
+                  {loading && modelos.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                        Cargando catálogo de modelos desde el servidor...
+                      </td>
+                    </tr>
+                  ) : filtrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                        No hay modelos registrados que coincidan con la búsqueda.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtrados.map((m) => (
                       <tr key={m.id}>
-                        <td style={{ fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }}>{m.folioModelo}</td>
-                        <td style={{ whiteSpace: 'nowrap' }}>
-                          <span className={`matriz-badge ${badgeClass}`}>
-                            {m.matriz}
-                          </span>
+                        <td className="read-only-cell" style={{ fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }}>
+                          {renderCell(m, 'folioModelo')}
                         </td>
-                        <td style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{m.norma}</td>
-                        <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>{m.modalidad}</td>
-                        <td style={{ color: '#1e293b', whiteSpace: 'nowrap' }}>{m.descripcion}</td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
+                          {renderCell(m, 'matriz', ['AGUAS', 'EMISIONES', 'LABORALES', 'ALIMENTOS', 'ESPECIAL'])}
+                        </td>
+                        <td style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          {renderCell(m, 'norma')}
+                        </td>
+                        <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>
+                          {renderCell(m, 'modalidad')}
+                        </td>
+                        <td style={{ color: '#1e293b', whiteSpace: 'nowrap' }}>
+                          {renderCell(m, 'descripcion')}
+                        </td>
                         <td style={{ fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
-                          ${m.precioBase.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          {renderCell(m, 'precioBase')}
                         </td>
-                        <td style={{ whiteSpace: 'nowrap' }}>{m.anioVigencia}</td>
                         <td style={{ whiteSpace: 'nowrap' }}>
-                          <span className="core-badge status-active">
-                            {m.activo ? 'ACTIVO' : 'INACTIVO'}
-                          </span>
+                          {renderCell(m, 'anioVigencia')}
+                        </td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
+                          {renderCell(m, 'activo', ['ACTIVO', 'INACTIVO'])}
+                        </td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
+                          <div className="table-actions">
+                            <Tooltip title="Eliminar modelo analítico" arrow>
+                              <IconButton
+                                size="small"
+                                className="table-btn delete-btn"
+                                onClick={() => setModeloAEliminar(m)}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </div>
                         </td>
                       </tr>
-                    );
-                  })}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
+
+        {/* Modal de Confirmación para Eliminar Modelo */}
+        {modeloAEliminar && (
+          <div
+            className="modal-eliminar-overlay"
+            onClick={() => !eliminando && setModeloAEliminar(null)}
+          >
+            <div
+              className="modal-eliminar-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-eliminar-header">
+                <div className="modal-eliminar-icon-badge">
+                  <WarningAlertIcon />
+                </div>
+                <div>
+                  <h3 className="modal-eliminar-title">¿Eliminar modelo analítico?</h3>
+                  <p className="modal-eliminar-subtitle">
+                    Estás por remover este paquete del catálogo de cotizaciones.
+                  </p>
+                </div>
+              </div>
+
+              <div className="modal-eliminar-info-box">
+                <div className="modal-eliminar-cliente-nombre">
+                  {modeloAEliminar.folioModelo} — {modeloAEliminar.norma || 'Sin norma'}
+                </div>
+                <div className="modal-eliminar-cliente-meta">
+                  <span className="modal-eliminar-clave-tag">
+                    {modeloAEliminar.matriz || 'AGUAS'}
+                  </span>
+                  <span>
+                    <strong>Precio Base:</strong> ${Number(modeloAEliminar.precioBase || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                  </span>
+                </div>
+              </div>
+
+              <div className="modal-eliminar-warning">
+                Esta acción eliminará el modelo del catálogo. Las cotizaciones emitidas previamente conservarán su histórico.
+              </div>
+
+              <div className="modal-eliminar-actions">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={eliminando}
+                  className="btn-modal-cancelar"
+                  onClick={() => setModeloAEliminar(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={eliminando}
+                  className="btn-modal-confirmar"
+                  startIcon={<DeleteIcon />}
+                  onClick={async () => {
+                    try {
+                      setEliminando(true);
+                      await deleteModeloCoti(modeloAEliminar.id);
+                      setModeloAEliminar(null);
+                    } catch (err) {
+                      console.error('Error al eliminar modelo:', err);
+                      alert('No se pudo eliminar el modelo: ' + (err.message || 'Error en el servidor'));
+                    } finally {
+                      setEliminando(false);
+                    }
+                  }}
+                >
+                  {eliminando ? 'Eliminando...' : 'Sí, eliminar modelo'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
-      {/* Modal Nuevo Modelo */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800, color: '#0f172a' }}>
-          Registrar Nuevo Modelo Analítico 2025
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <form id="form-modelo" onSubmit={handleCrear} className="core-form-grid">
-            <div className="core-form-group">
-              <label>Folio del Modelo (Opcional)</label>
-              <input
-                type="text"
-                placeholder="Ej: LA05488 (o se autogenera)"
-                value={formData.folioModelo}
-                onChange={(e) => setFormData({ ...formData, folioModelo: e.target.value })}
-              />
-            </div>
-
-            <div className="core-form-group">
-              <label>Matriz</label>
-              <select
-                value={formData.matriz}
-                onChange={(e) => setFormData({ ...formData, matriz: e.target.value })}
-              >
-                <option value="AGUAS">AGUAS</option>
-                <option value="EMISIONES">EMISIONES</option>
-                <option value="LABORALES">LABORALES</option>
-                <option value="ALIMENTOS">ALIMENTOS</option>
-              </select>
-            </div>
-
-            <div className="core-form-group">
-              <label>Norma Oficial Aplicable (Opcional)</label>
-              <input
-                type="text"
-                placeholder="Ej: NOM-001-SEMARNAT-2021"
-                value={formData.norma}
-                onChange={(e) => setFormData({ ...formData, norma: e.target.value })}
-              />
-            </div>
-
-            <div className="core-form-group">
-              <label>Modalidad de Muestreo</label>
-              <input
-                type="text"
-                placeholder="Ej: Puntual, Compuesta 24h"
-                value={formData.modalidad}
-                onChange={(e) => setFormData({ ...formData, modalidad: e.target.value })}
-              />
-            </div>
-
-            <div className="core-form-group full">
-              <label>Descripción del Paquete Analítico (Opcional)</label>
-              <input
-                type="text"
-                placeholder="Descripción detallada de parámetros..."
-                value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-              />
-            </div>
-
-            <div className="core-form-group full">
-              <label>Precio Base (MXN - Opcional)</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={formData.precioBase}
-                onChange={(e) => setFormData({ ...formData, precioBase: e.target.value })}
-              />
-            </div>
-          </form>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenModal(false)} sx={{ textTransform: 'none', color: '#64748b' }}>
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            form="form-modelo"
-            variant="contained"
-            sx={{ textTransform: 'none', backgroundColor: '#0284c7', fontWeight: 600 }}
-          >
-            Guardar Modelo
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Drawer Lateral para Alta / Edición de Modelos */}
+      <ModeloDrawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        onSave={createModeloCoti}
+        modelosExistentes={modelos}
+      />
     </div>
   );
 }

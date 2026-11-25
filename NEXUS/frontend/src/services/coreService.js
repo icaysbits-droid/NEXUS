@@ -1,6 +1,6 @@
-const API_AUTH_URL = 'http://localhost:8080/api/auth';
-const API_CLIENTES_URL = 'http://localhost:8080/api/clientes';
-export const API_CORE_URL = 'http://localhost:8080/api/core';
+import { API_AUTH_URL, API_CLIENTES_URL, API_CORE_URL } from './api';
+
+export { API_CORE_URL };
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('nexus_token') || localStorage.getItem('jwt_token');

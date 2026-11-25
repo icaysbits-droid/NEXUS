@@ -1,9 +1,9 @@
-/* ListaGeneral.css - Estilos para la vista de Lista General & KPIs Comerciales */
+/* ListaGeneral.css - Estilos para Cartelera de Carpetas de Clientes e Historial de Servicios */
 
 .lista-general-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
 }
 
@@ -19,9 +19,9 @@
 .lista-titulo h2 {
   margin: 0;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
 }
 
 .lista-subtitulo {
@@ -30,36 +30,94 @@
   color: #64748b;
 }
 
-/* ================= KPIS COMPACTOS EN LÍNEA (STAT PILLS) ================= */
+/* ================= PESTAÑAS DE CARTELERA (ACTIVOS VS HISTORIAL) ================= */
+.cartelera-tabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cartelera-tabs-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cartelera-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.cartelera-tab-btn:hover {
+  color: #0f172a;
+  background-color: #f8fafc;
+}
+
+.cartelera-tab-btn.active {
+  color: #0033a0;
+  border-bottom-color: #0033a0;
+  background-color: #eff6ff;
+}
+
+.tab-count-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.cartelera-tab-btn.active .tab-count-pill {
+  background-color: #0033a0;
+  color: #ffffff;
+}
+
+/* ================= KPIS COMPACTOS EN LÍNEA ================= */
 .kpis-grid {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 4px;
 }
 
 .kpi-card {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 9px;
-  padding: 6px 14px;
+  border-radius: 10px;
+  padding: 7px 14px;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   transition: all 0.15s ease;
 }
 
 .kpi-card:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.06);
 }
 
 .kpi-icon-wrap {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,11 +139,6 @@
   color: #d97706;
 }
 
-.kpi-icon-purple {
-  background-color: #f5f3ff;
-  color: #7c3aed;
-}
-
 .kpi-content {
   display: flex;
   align-items: baseline;
@@ -101,7 +154,7 @@
 }
 
 .kpi-value {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
   color: #0f172a;
 }
@@ -112,71 +165,147 @@
   font-weight: 500;
 }
 
-/* ================= BARRA DE BÚSQUEDA Y FILTROS ================= */
+/* ================= BUSCADOR PRINCIPAL UNIFICADO ================= */
 .filtros-bar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   background-color: #ffffff;
   padding: 10px 14px;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  flex-wrap: wrap;
-  gap: 10px;
+  border-radius: 12px;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 }
 
-.filtros-inputs {
+.filtros-top-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex: 1;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search-box-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon-adornment {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
 }
 
 .input-buscar-lista {
-  min-width: 260px;
-  padding: 7px 12px;
-  font-size: 13px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
+  width: 100%;
+  padding: 10px 36px 10px 38px;
+  font-size: 13.5px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 .input-buscar-lista:focus {
   border-color: #0033a0;
-}
-
-.select-filtro-lista {
-  padding: 7px 12px;
-  font-size: 12.5px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
   background-color: #ffffff;
-  color: #1e293b;
-  outline: none;
-  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.08);
 }
 
-.select-filtro-lista:focus {
-  border-color: #0033a0;
+.clear-search-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.clear-search-btn:hover {
+  color: #0f172a;
+  background-color: #e2e8f0;
 }
 
 .contador-registros {
   font-size: 12.5px;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: #475569;
 }
 
-/* Tabla Lista General */
+/* ================= BANNER DETECTOR INTELIGENTE ================= */
+.smart-detection-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+  border: 1.5px solid #93c5fd;
+  border-left: 5px solid #0033a0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 12px rgba(0, 51, 160, 0.06);
+}
+
+.smart-detection-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.smart-detection-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0033a0;
+}
+
+.smart-detection-badge {
+  background-color: #0033a0;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.smart-detection-desc {
+  font-size: 12.5px;
+  color: #1e293b;
+  line-height: 1.45;
+}
+
+.smart-detection-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ================= TABLA DE CARTELERA DE CARPETAS ================= */
 .lista-tabla-scroll {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: auto;
-  max-height: 70vh;
+  max-height: 68vh;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 12px;
   background-color: #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
@@ -198,7 +327,7 @@
 }
 
 .lista-tabla-scroll th {
-  padding: 10px 14px;
+  padding: 11px 14px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -211,15 +340,721 @@
 
 .lista-tabla-scroll tbody tr {
   transition: background-color 0.12s ease;
+  cursor: pointer;
 }
 
 .lista-tabla-scroll tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
 }
 
 .lista-tabla-scroll td {
-  padding: 10px 14px;
+  padding: 11px 14px;
   border-bottom: 1px solid #f1f5f9;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+/* Celda de Carpeta Cliente */
+.folder-client-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.folder-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background-color: #eff6ff;
+  color: #0033a0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #bfdbfe;
+}
+
+.folder-client-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.folder-group-name {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-recien-creado {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.folder-legal-sub {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Resumen de servicios en tabla */
+.services-summary-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.srv-count-total {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.srv-pending-ss-badge {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.btn-abrir-carpeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #0033a0;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-abrir-carpeta:hover {
+  background-color: #002277;
+}
+
+/* ================= MODAL DE CARPETA 360° ================= */
+.carpeta-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.carpeta-modal-window {
+  background-color: #f8fafc;
+  width: 100%;
+  max-width: 1180px;
+  max-height: 90vh;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+/* Header de la Carpeta */
+.carpeta-modal-header {
+  background: linear-gradient(135deg, #0f172a 0%, #0033a0 100%);
+  color: #ffffff;
+  padding: 18px 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.carpeta-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.carpeta-big-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.carpeta-header-titles h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carpeta-clave-tag {
+  background-color: #38bdf8;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.carpeta-header-sub {
+  margin: 4px 0 0 0;
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+
+.carpeta-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-close-carpeta {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-close-carpeta:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Pestañas de la Carpeta */
+.carpeta-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #ffffff;
+  padding: 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.carpeta-subtab {
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #64748b;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: -0.1px;
+}
+
+.carpeta-subtab:hover {
+  color: #0f172a;
+}
+
+.carpeta-subtab.active {
+  color: #0033a0;
+  border-bottom-color: #0033a0;
+}
+
+/* Cuerpo de la Carpeta */
+.carpeta-modal-body {
+  padding: 18px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Badges de estatus */
+.srv-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.srv-status-badge.concluida {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.srv-status-badge.espera-ss {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.srv-status-badge.pendiente {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.srv-status-badge.vencida,
+.srv-status-badge.rechazada {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.btn-ver-ss {
+  background-color: #0033a0;
+  color: #ffffff;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 4px rgba(0, 51, 160, 0.22);
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+
+.btn-ver-ss:hover {
+  background-color: #002277;
+}
+
+/* ================= VISOR PDF DE SOLICITUD DE SERVICIO (SS) ================= */
+.ss-pdf-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(3px);
+  z-index: 1350;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.ss-pdf-viewer {
+  width: 100%;
+  max-width: 980px;
+  height: 92vh;
+  background-color: #525659;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
+}
+
+.ss-pdf-toolbar {
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #334155;
+  flex-shrink: 0;
+}
+
+.ss-pdf-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ss-pdf-file-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background-color: #dc2626;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ss-pdf-file-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ss-pdf-filename {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ss-pdf-file-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.ss-pdf-toolbar-center {
+  display: flex;
+  align-items: center;
+}
+
+.ss-pdf-page-indicator {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+}
+
+.ss-pdf-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ss-pdf-btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ss-pdf-btn-print:hover {
+  background-color: #0369a1;
+}
+
+.ss-pdf-btn-close {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ss-pdf-btn-close:hover {
+  background-color: rgba(255, 255, 255, 0.22);
+}
+
+.ss-pdf-canvas {
+  flex: 1;
+  overflow-y: auto;
+  padding: 26px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #525659;
+}
+
+.ss-pdf-sheet {
+  width: 100%;
+  max-width: 816px;
+  min-height: 1056px;
+  background-color: #ffffff;
+  color: #0f172a;
+  padding: 34px 40px;
+  box-sizing: border-box;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.ss-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 18px;
+  border-bottom: 2.5px solid #0033a0;
+  padding-bottom: 14px;
+}
+
+.ss-sheet-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.ss-sheet-logo-mark {
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0f172a 0%, #0033a0 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ss-sheet-brand-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ss-sheet-system-tag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0284c7;
+  letter-spacing: 0.7px;
+}
+
+.ss-sheet-brand-texts h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+
+.ss-sheet-brand-texts p {
+  margin: 0;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.ss-sheet-control-box {
+  width: 245px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ss-control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  gap: 8px;
+}
+
+.ss-control-label {
+  font-weight: 700;
+  color: #64748b;
+}
+
+.ss-control-value {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ss-control-folio {
+  color: #0033a0;
+  font-weight: 900;
+}
+
+.ss-sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ss-section-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  background-color: #0033a0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.4px;
+}
+
+.ss-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ss-info-cell {
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ss-col-span-2 {
+  grid-column: span 2;
+}
+
+.ss-cell-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.ss-cell-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ss-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  border: 1px solid #cbd5e1;
+}
+
+.ss-sheet-table th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border-bottom: 1px solid #cbd5e1;
+  text-align: left;
+}
+
+.ss-sheet-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.ss-sheet-totals {
+  align-self: flex-end;
+  width: 260px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ss-total-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.ss-total-line.ss-total-grand {
+  border-top: 1px solid #cbd5e1;
+  padding-top: 5px;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #0033a0;
+}
+
+.ss-conditions-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.ss-signatures-section {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.ss-signatures-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 26px;
+}
+
+.ss-signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+}
+
+.ss-signature-line {
+  width: 100%;
+  border-top: 1px solid #334155;
+  margin-bottom: 4px;
+}
+
+.ss-signature-role {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ss-signature-sub {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.ss-sheet-footer {
+  border-top: 1px solid #cbd5e1;
+  padding-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
 }

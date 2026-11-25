@@ -115,11 +115,15 @@
   letter-spacing: 0.4px;
 }
 
-/* Filas con 2 columnas */
+/* Filas con 2 columnas o 1 columna completa */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.form-row.full-width {
+  grid-template-columns: 1fr;
 }
 
 /* Estilos de inputs de Material UI dentro del Drawer */

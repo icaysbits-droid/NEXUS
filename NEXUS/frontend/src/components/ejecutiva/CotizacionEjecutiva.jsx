@@ -1,26 +1,18 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import EjecutivaNav from './EjecutivaNav';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import SvgIcon from '@mui/material/SvgIcon';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
 import Tooltip from '@mui/material/Tooltip';
+import CotizacionDrawer from './CotizacionDrawer';
 import { useClientes } from '../../hooks/useClientes';
-import { MODELOS_CATALOGO_2025 } from './ModelosEjecutiva';
+import { useModelCot } from '../../hooks/useModelCot';
+import { useCotizaciones } from '../../hooks/useCotizaciones';
 import '../../css/EjecutivaDashboard.css';
+import '../../css/clientes_eject.css';
 import '../../css/ListaGeneral.css';
 import '../../css/core_control.css';
 import '../../css/Cotizaciones.css';
-
-function SparklesIcon(props) {
-  return (
-    <SvgIcon {...props} sx={{ fontSize: 18 }}>
-      <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z" fill="currentColor" />
-    </SvgIcon>
-  );
-}
 
 function DocumentPlusIcon(props) {
   return (
@@ -54,206 +46,285 @@ function PendingIcon(props) {
   );
 }
 
-const COTIZACIONES_MOCK = [
-  {
-    id: 'cot-001',
-    folio: 'COT-0014',
-    clienteClave: 'CLI-0001',
-    clienteNombre: 'PROVINCIA JURICA CONDOMINIO INDUSTRIAL',
-    modeloFolio: 'LA05484',
-    matriz: 'AGUAS',
-    subtotal: 16900.00,
-    descuentoPorcentaje: 5,
-    iva: 2568.80,
-    montoTotal: 18623.80,
-    estatus: 'APROBADA',
-    fechaEmision: '2026-11-10',
-    fechaVigencia: '2026-12-10',
-    ejecutiva: 'Marisol Herrera'
-  },
-  {
-    id: 'cot-002',
-    folio: 'COT-0015',
-    clienteClave: 'CLI-0002',
-    clienteNombre: 'INNOVACIONES MECATRÓNICAS DE PUEBLA',
-    modeloFolio: 'EM02145',
-    matriz: 'EMISIONES',
-    subtotal: 16800.00,
-    descuentoPorcentaje: 0,
-    iva: 2688.00,
-    montoTotal: 19488.00,
-    estatus: 'PENDIENTE',
-    fechaEmision: '2026-11-14',
-    fechaVigencia: '2026-12-14',
-    ejecutiva: 'Marisol Herrera'
-  },
-  {
-    id: 'cot-003',
-    folio: 'COT-0016',
-    clienteClave: 'CLI-0002',
-    clienteNombre: 'INNOVACIONES MECATRÓNICAS DE PUEBLA',
-    modeloFolio: 'LB01092',
-    matriz: 'LABORALES',
-    subtotal: 13800.00,
-    descuentoPorcentaje: 10,
-    iva: 1987.20,
-    montoTotal: 14407.20,
-    estatus: 'BORRADOR',
-    fechaEmision: '2026-11-16',
-    fechaVigencia: '2026-12-16',
-    ejecutiva: 'Marisol Herrera'
-  }
-];
+function DeleteIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+    </SvgIcon>
+  );
+}
+
+function DownloadIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+    </SvgIcon>
+  );
+}
+
+function LinkIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
+    </SvgIcon>
+  );
+}
+
+function WarningAlertIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 24 }}>
+      <path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z" />
+    </SvgIcon>
+  );
+}
 
 export default function CotizacionEjecutiva({ user, onLogout, activeTab = 'cotizaciones', setActiveTab }) {
-  const [cotizaciones, setCotizaciones] = useState(COTIZACIONES_MOCK);
+  // Cotizaciones desde la base de datos viva
+  const {
+    cotizaciones,
+    loading: loadingCotizaciones,
+    error: errorCotizaciones,
+    siguienteFolio,
+    loadCotizaciones,
+    crearNuevaCotizacion,
+    updateCotizacion,
+    eliminarCotizacion
+  } = useCotizaciones();
+
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstatus, setFiltroEstatus] = useState('TODOS');
-  const [openModal, setOpenModal] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
 
-  // Clientes desde la base de datos
+  // Estado para el Modal de Confirmación de Eliminación
+  const [cotizacionAEliminar, setCotizacionAEliminar] = useState(null);
+  const [eliminando, setEliminando] = useState(false);
+
+  // Estado para Edición Inline en cada fila (Doble Clic)
+  const [editingCell, setEditingCell] = useState({ id: null, field: null });
+  const [editValue, setEditValue] = useState('');
+  const savingCellRef = useRef(false);
+
+  // Clientes y modelos desde la base de datos
   const { clientes } = useClientes();
+  const { modelCoti: catalogoModelos, loading: loadingModelos } = useModelCot();
 
-  // Estado del formulario de creación
-  const [selectedClienteId, setSelectedClienteId] = useState('');
-  const [selectedModeloId, setSelectedModeloId] = useState('');
-  const [esModeloExclusivo, setEsModeloExclusivo] = useState(false);
-  const [modeloExclusivo, setModeloExclusivo] = useState({
-    folioModelo: '',
-    matriz: 'AGUAS',
-    norma: '',
-    descripcion: '',
-    precioBase: ''
-  });
-  const [puntosMuestreo, setPuntosMuestreo] = useState(1);
-  const [descuentoPorcentaje, setDescuentoPorcentaje] = useState(0);
-  const [vigenciaDias, setVigenciaDias] = useState(30);
-
-  // Cliente seleccionado y detección de cliente ÚNICO
-  const clienteSeleccionado = useMemo(() => {
-    return clientes.find((c) => c.id === selectedClienteId) || null;
-  }, [clientes, selectedClienteId]);
-
-  const esClienteUnico = clienteSeleccionado?.estatus === 'UNICO';
-
-  // Si el cliente es ÚNICO, activar automáticamente la dinámica de Modelo Exclusivo
-  useEffect(() => {
-    if (esClienteUnico) {
-      setEsModeloExclusivo(true);
-      setModeloExclusivo((prev) => ({
-        ...prev,
-        folioModelo: prev.folioModelo || `MOD-UNI-${cotizaciones.length + 15}`,
-        descripcion: prev.descripcion || `Servicio analítico específico para ${clienteSeleccionado?.razonSocial || 'Cliente Único'}`
-      }));
-    }
-  }, [esClienteUnico, clienteSeleccionado, cotizaciones.length]);
-
-  // Cálculos financieros reactivos
-  const modeloSeleccionado = useMemo(() => {
-    return MODELOS_CATALOGO_2025.find((m) => m.id === selectedModeloId) || null;
-  }, [selectedModeloId]);
-
-  const calculos = useMemo(() => {
-    const base = esModeloExclusivo
-      ? (parseFloat(modeloExclusivo.precioBase) || 0)
-      : (modeloSeleccionado ? modeloSeleccionado.precioBase : 0);
-
-    const subtotalBruto = base * Math.max(1, parseInt(puntosMuestreo, 10) || 1);
-    const descPct = Math.min(100, Math.max(0, parseFloat(descuentoPorcentaje) || 0));
-    const montoDescuento = subtotalBruto * (descPct / 100);
-    const subtotalNeto = subtotalBruto - montoDescuento;
-    const iva = subtotalNeto * 0.16;
-    const total = subtotalNeto + iva;
-
-    return {
-      subtotalBruto,
-      montoDescuento,
-      subtotalNeto,
-      iva,
-      total
-    };
-  }, [esModeloExclusivo, modeloExclusivo.precioBase, modeloSeleccionado, puntosMuestreo, descuentoPorcentaje]);
+  // Helpers para extraer valores de campos con compatibilidad
+  const getClienteNombre = (c) =>
+    c.cliente?.razonSocial || c.cliente?.razon_social || c.cliente?.rfc || c.clienteNombre || 'Sin Cliente Asignado';
+  const getClienteClave = (c) =>
+    c.cliente?.claveCliente || c.cliente?.clave_cliente || c.clienteClave || 'CLI';
+  const esClienteUnicoRow = (c) =>
+    c.cliente?.estatus === 'UNICO' || Boolean(c.esClienteUnico);
+  const getModeloFolio = (c) =>
+    c.modelo?.folioModelo || c.modeloFolio || '—';
+  const getModeloMatriz = (c) =>
+    c.modelo?.matriz || c.matriz || 'AGUAS';
+  const getModeloDescripcion = (c) =>
+    c.modelo?.descripcion || c.modeloDescripcion || '';
+  const esModeloExclusivoRow = (c) =>
+    c.modelo?.activo === false || Boolean(c.esModeloUnico);
+  const parseMonto = (val) =>
+    typeof val === 'number' ? val : parseFloat(val) || 0;
 
   const filtradas = cotizaciones.filter((c) => {
     const q = busqueda.toLowerCase().trim();
+    const clienteNom = getClienteNombre(c).toLowerCase();
+    const clienteClv = getClienteClave(c).toLowerCase();
+    const modFolio = getModeloFolio(c).toLowerCase();
+    const folio = (c.folio || '').toLowerCase();
+
     const matchText =
       !q ||
-      c.folio.toLowerCase().includes(q) ||
-      c.clienteNombre.toLowerCase().includes(q) ||
-      c.clienteClave.toLowerCase().includes(q) ||
-      c.modeloFolio.toLowerCase().includes(q);
+      folio.includes(q) ||
+      clienteNom.includes(q) ||
+      clienteClv.includes(q) ||
+      modFolio.includes(q);
 
-    const matchEstatus = filtroEstatus === 'TODOS' || c.estatus === filtroEstatus;
+    const matchEstatus = filtroEstatus === 'TODOS' || (c.estatus || '').toUpperCase() === filtroEstatus;
     return matchText && matchEstatus;
   });
 
   const kpis = useMemo(() => {
-    const totalMonto = cotizaciones.reduce((acc, curr) => acc + curr.montoTotal, 0);
-    const aprobadas = cotizaciones.filter((c) => c.estatus === 'APROBADA').length;
-    const pendientes = cotizaciones.filter((c) => c.estatus === 'PENDIENTE').length;
+    const totalMonto = cotizaciones.reduce((acc, curr) => acc + parseMonto(curr.montoTotal), 0);
+    const aprobadas = cotizaciones.filter((c) => (c.estatus || '').toUpperCase() === 'APROBADA').length;
+    const pendientes = cotizaciones.filter((c) => (c.estatus || '').toUpperCase() === 'PENDIENTE').length;
     return { totalMonto, aprobadas, pendientes };
   }, [cotizaciones]);
 
-  const handleCrearCotizacion = (e) => {
-    e.preventDefault();
+  const handleCrearCotizacion = async (payload) => {
+    await crearNuevaCotizacion(payload);
+  };
 
-    const hoy = new Date();
-    const fechaVig = new Date();
-    fechaVig.setDate(hoy.getDate() + (parseInt(vigenciaDias, 10) || 30));
+  // Extrae el valor actual editable de una celda según el campo
+  const getCellCurrentValue = (c, field) => {
+    switch (field) {
+      case 'clienteId':
+        return c.cliente?.id || c.clienteId || '';
+      case 'modeloId':
+        return c.modelo?.id || c.modeloId || '';
+      case 'matriz':
+        return getModeloMatriz(c).toUpperCase();
+      case 'subtotal':
+        return parseMonto(c.subtotal);
+      case 'fechaEmision':
+        return c.fechaEmision || '';
+      case 'fechaVigencia':
+        return c.fechaVigencia || '';
+      case 'estatus':
+        return (c.estatus || 'PENDIENTE').toUpperCase();
+      default:
+        return c[field] ?? '';
+    }
+  };
 
-    const nuevoFolioNum = cotizaciones.length + 14;
-    const nuevoFolio = `COT-${String(nuevoFolioNum).padStart(4, '0')}`;
+  const handleStartEdit = (cotizacion, field) => {
+    savingCellRef.current = false;
+    setEditingCell({ id: cotizacion.id, field });
+    setEditValue(getCellCurrentValue(cotizacion, field));
+  };
 
-    let folioFinalModelo = '';
-    let matrizFinal = 'AGUAS';
-    let descripcionModelo = '';
+  const handleCancelEdit = () => {
+    savingCellRef.current = false;
+    setEditingCell({ id: null, field: null });
+  };
 
-    if (esModeloExclusivo) {
-      folioFinalModelo = modeloExclusivo.folioModelo?.trim()
-        ? modeloExclusivo.folioModelo.trim().toUpperCase()
-        : `MOD-UNI-${nuevoFolioNum}`;
-      matrizFinal = modeloExclusivo.matriz || 'AGUAS';
-      descripcionModelo = modeloExclusivo.descripcion?.trim() || 'Servicio analítico exclusivo a la medida';
-    } else {
-      folioFinalModelo = modeloSeleccionado?.folioModelo || 'MOD-ESP';
-      matrizFinal = modeloSeleccionado?.matriz || 'AGUAS';
-      descripcionModelo = modeloSeleccionado?.descripcion || 'Modelo analítico de catálogo';
+  const handleCommitEdit = async (id, field) => {
+    if (savingCellRef.current || editingCell.id !== id || editingCell.field !== field) return;
+
+    const cotizacion = cotizaciones.find((item) => item.id === id);
+    if (!cotizacion) {
+      handleCancelEdit();
+      return;
     }
 
-    const nueva = {
-      id: `cot-${Date.now()}`,
-      folio: nuevoFolio,
-      clienteClave: clienteSeleccionado?.claveCliente || clienteSeleccionado?.clave_cliente || 'CLI-PROSP',
-      clienteNombre: clienteSeleccionado?.razonSocial || clienteSeleccionado?.razon_social || 'Cliente en Prospección / Por definir',
-      esClienteUnico: esClienteUnico,
-      esModeloUnico: esModeloExclusivo,
-      modeloFolio: folioFinalModelo,
-      modeloDescripcion: descripcionModelo,
-      matriz: matrizFinal,
-      subtotal: calculos.subtotalNeto || 0,
-      descuentoPorcentaje: parseFloat(descuentoPorcentaje) || 0,
-      iva: calculos.iva || 0,
-      montoTotal: calculos.total || 0,
-      estatus: 'PENDIENTE',
-      fechaEmision: hoy.toISOString().split('T')[0],
-      fechaVigencia: fechaVig.toISOString().split('T')[0],
-      ejecutiva: `${user?.nombre || 'Ejecutiva'} ${user?.apellido || 'NEXUS'}`
-    };
+    let val = editValue;
+    if (field === 'subtotal') {
+      const parsed = parseFloat(val);
+      if (isNaN(parsed) || parsed < 0) {
+        handleCancelEdit();
+        return;
+      }
+      val = parsed;
+    } else if (field === 'matriz' || field === 'estatus') {
+      val = String(val || '').trim().toUpperCase();
+      if (!val) {
+        handleCancelEdit();
+        return;
+      }
+    } else if (!val) {
+      handleCancelEdit();
+      return;
+    }
 
-    setCotizaciones([nueva, ...cotizaciones]);
-    setOpenModal(false);
-    setSelectedClienteId('');
-    setSelectedModeloId('');
-    setEsModeloExclusivo(false);
-    setModeloExclusivo({
-      folioModelo: '',
-      matriz: 'AGUAS',
-      norma: '',
-      descripcion: '',
-      precioBase: ''
-    });
-    setPuntosMuestreo(1);
-    setDescuentoPorcentaje(0);
+    const valorActual = getCellCurrentValue(cotizacion, field);
+    const sinCambios = field === 'subtotal'
+      ? Number(valorActual) === Number(val)
+      : String(valorActual) === String(val);
+
+    if (sinCambios) {
+      handleCancelEdit();
+      return;
+    }
+
+    savingCellRef.current = true;
+    try {
+      await updateCotizacion(id, { [field]: val });
+    } catch (err) {
+      console.error('Error al actualizar cotización:', err);
+      alert('Error al guardar cambio: ' + (err.message || 'Error en el servidor'));
+    } finally {
+      savingCellRef.current = false;
+      setEditingCell({ id: null, field: null });
+    }
+  };
+
+  const STATIC_SELECT_OPTIONS = {
+    matriz: ['AGUAS', 'EMISIONES', 'LABORALES', 'ALIMENTOS'],
+    estatus: ['PENDIENTE', 'APROBADA', 'BORRADOR', 'VENCIDA', 'RECHAZADA']
+  };
+
+  const renderEditableCell = (c, field, displayContent, title = 'Doble clic para editar') => {
+    const isEditing = editingCell.id === c.id && editingCell.field === field;
+
+    if (isEditing) {
+      const commonHandlers = {
+        autoFocus: true,
+        value: editValue,
+        onChange: (e) => setEditValue(e.target.value),
+        onBlur: () => handleCommitEdit(c.id, field),
+        onKeyDown: (e) => {
+          if (e.key === 'Enter') handleCommitEdit(c.id, field);
+          if (e.key === 'Escape') handleCancelEdit();
+        }
+      };
+
+      if (field === 'clienteId') {
+        return (
+          <select {...commonHandlers} className="inline-cell-select">
+            {c.cliente?.id && !clientes.some((cli) => String(cli.id) === String(c.cliente.id)) && (
+              <option value={c.cliente.id}>
+                {getClienteClave(c)} - {getClienteNombre(c)}
+              </option>
+            )}
+            {clientes.map((cli) => (
+              <option key={cli.id} value={cli.id}>
+                {cli.claveCliente || cli.clave_cliente || 'CLI'} - {cli.razonSocial || cli.razon_social || cli.rfc}
+              </option>
+            ))}
+          </select>
+        );
+      }
+
+      if (field === 'modeloId') {
+        return (
+          <select {...commonHandlers} className="inline-cell-select">
+            {c.modelo?.id && !catalogoModelos.some((m) => String(m.id) === String(c.modelo.id)) && (
+              <option value={c.modelo.id}>
+                {getModeloFolio(c)} [{getModeloMatriz(c)}] (Exclusivo)
+              </option>
+            )}
+            {catalogoModelos.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.folioModelo} [{m.matriz}] - ${Number(m.precioBase || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+              </option>
+            ))}
+          </select>
+        );
+      }
+
+      if (STATIC_SELECT_OPTIONS[field]) {
+        return (
+          <select {...commonHandlers} className="inline-cell-select">
+            {STATIC_SELECT_OPTIONS[field].map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        );
+      }
+
+      const inputType = field === 'subtotal' ? 'number' : 'date';
+      return (
+        <input
+          {...commonHandlers}
+          type={inputType}
+          step={field === 'subtotal' ? '0.01' : undefined}
+          min={field === 'subtotal' ? '0' : undefined}
+          className="inline-cell-input"
+        />
+      );
+    }
+
+    return (
+      <div
+        className="editable-cell-wrapper"
+        onDoubleClick={() => handleStartEdit(c, field)}
+        title={title}
+      >
+        {displayContent}
+      </div>
+    );
   };
 
   return (
@@ -271,7 +342,7 @@ export default function CotizacionEjecutiva({ user, onLogout, activeTab = 'cotiz
             <div className="cotizaciones-titulo">
               <h2>Módulo de Cotizaciones Comerciales</h2>
               <p className="cotizaciones-subtitulo">
-                Generación, cálculo fiscal automatizado y seguimiento de propuestas analíticas
+                Generación, cálculo fiscal automatizado y seguimiento de propuestas analíticas (Doble clic en celdas para editar)
               </p>
             </div>
 
@@ -279,7 +350,7 @@ export default function CotizacionEjecutiva({ user, onLogout, activeTab = 'cotiz
               variant="contained"
               size="small"
               startIcon={<DocumentPlusIcon />}
-              onClick={() => setOpenModal(true)}
+              onClick={() => setOpenDrawer(true)}
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
@@ -351,26 +422,47 @@ export default function CotizacionEjecutiva({ user, onLogout, activeTab = 'cotiz
                   <option value="PENDIENTE">Pendientes</option>
                   <option value="BORRADOR">Borradores</option>
                   <option value="VENCIDA">Vencidas</option>
+                  <option value="RECHAZADA">Rechazadas</option>
                 </select>
               </div>
-              <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>
-                {filtradas.length} cotizaciones registradas
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {errorCotizaciones && (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    onClick={loadCotizaciones}
+                    sx={{ textTransform: 'none', fontSize: '11.5px' }}
+                  >
+                    Reintentar
+                  </Button>
+                )}
+                <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>
+                  {loadingCotizaciones ? 'Cargando cotizaciones...' : `${filtradas.length} cotizaciones registradas`}
+                </span>
+              </div>
             </div>
+
+            {errorCotizaciones && (
+              <div style={{ padding: '10px 14px', backgroundColor: '#fef2f2', color: '#b91c1c', fontSize: '12.5px', borderBottom: '1px solid #fecaca' }}>
+                {errorCotizaciones}
+              </div>
+            )}
 
             <div className="core-table-wrap">
               <table className="core-table">
                 <colgroup>
                   <col style={{ width: '105px' }} /> {/* Folio */}
                   <col style={{ minWidth: '380px' }} /> {/* Cliente */}
-                  <col style={{ width: '130px' }} /> {/* Modelo Base */}
-                  <col style={{ width: '115px' }} /> {/* Matriz */}
+                  <col style={{ width: '150px' }} /> {/* Modelo Base */}
+                  <col style={{ width: '125px' }} /> {/* Matriz */}
                   <col style={{ width: '140px' }} /> {/* Subtotal (Neto) */}
                   <col style={{ width: '125px' }} /> {/* IVA (16%) */}
                   <col style={{ width: '150px' }} /> {/* Monto Total (MXN) */}
-                  <col style={{ width: '115px' }} /> {/* Emisión */}
-                  <col style={{ width: '115px' }} /> {/* Vigencia */}
-                  <col style={{ width: '120px' }} /> {/* Estatus */}
+                  <col style={{ width: '135px' }} /> {/* Emisión */}
+                  <col style={{ width: '135px' }} /> {/* Vigencia */}
+                  <col style={{ width: '125px' }} /> {/* Estatus */}
+                  <col style={{ width: '125px' }} /> {/* Acciones */}
                 </colgroup>
                 <thead>
                   <tr>
@@ -384,329 +476,250 @@ export default function CotizacionEjecutiva({ user, onLogout, activeTab = 'cotiz
                     <th>Emisión</th>
                     <th>Vigencia</th>
                     <th>Estatus</th>
+                    <th style={{ textAlign: 'center' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtradas.map((c) => (
-                    <tr key={c.id}>
-                      <td style={{ fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }}>{c.folio}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', whiteSpace: 'nowrap' }}>
-                          <span style={{ fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>{c.clienteNombre}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '11px', color: '#64748b' }}>{c.clienteClave}</span>
-                            {c.esClienteUnico && (
-                              <span className="status-pill unico" style={{ fontSize: '9.5px', padding: '1px 5px' }}>
-                                Único
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', whiteSpace: 'nowrap' }}>
-                          <span style={{ fontWeight: 700, color: c.esModeloUnico ? '#7e22ce' : '#0f172a' }}>
-                            {c.modeloFolio}
-                          </span>
-                          {c.esModeloUnico ? (
-                            <Tooltip title={c.modeloDescripcion || 'Modelo exclusivo para esta cotización'} arrow>
-                              <span className="badge-modelo-unico">Exclusivo / Único</span>
-                            </Tooltip>
-                          ) : (
-                            <span style={{ fontSize: '11px', color: '#64748b' }}>Catálogo 2025</span>
-                          )}
-                        </div>
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <span className={`matriz-badge ${c.matriz.toLowerCase()}`}>
-                          {c.matriz}
-                        </span>
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>${c.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>${c.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-                      <td style={{ fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
-                        ${c.montoTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                      </td>
-                      <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>{c.fechaEmision}</td>
-                      <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>{c.fechaVigencia}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
-                        <span className={`status-cot ${c.estatus.toLowerCase()}`}>
-                          {c.estatus}
-                        </span>
+                  {loadingCotizaciones && cotizaciones.length === 0 ? (
+                    <tr>
+                      <td colSpan={11} style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                        Cargando cotizaciones desde el servidor...
                       </td>
                     </tr>
-                  ))}
+                  ) : filtradas.length === 0 ? (
+                    <tr>
+                      <td colSpan={11} style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                        No hay cotizaciones registradas {busqueda ? 'que coincidan con la búsqueda' : 'en la base de datos'}.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtradas.map((c) => {
+                      const clienteNom = getClienteNombre(c);
+                      const clienteClv = getClienteClave(c);
+                      const esUnico = esClienteUnicoRow(c);
+                      const modFolio = getModeloFolio(c);
+                      const esModExclusivo = esModeloExclusivoRow(c);
+                      const modDesc = getModeloDescripcion(c);
+                      const modMatriz = getModeloMatriz(c);
+                      const subtotalNum = parseMonto(c.subtotal);
+                      const ivaNum = parseMonto(c.iva);
+                      const totalNum = parseMonto(c.montoTotal);
+                      const estatusStr = (c.estatus || 'PENDIENTE').toUpperCase();
+
+                      return (
+                        <tr key={c.id}>
+                          <td style={{ fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }} title="Folio de cotización no editable">
+                            {c.folio}
+                          </td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(
+                              c,
+                              'clienteId',
+                              <div style={{ display: 'flex', flexDirection: 'column', whiteSpace: 'nowrap' }}>
+                                <span style={{ fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>{clienteNom}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <span style={{ fontSize: '11px', color: '#64748b' }}>{clienteClv}</span>
+                                  {esUnico && (
+                                    <span className="status-pill unico" style={{ fontSize: '9.5px', padding: '1px 5px' }}>
+                                      Único
+                                    </span>
+                                  )}
+                                </div>
+                              </div>,
+                              'Doble clic para cambiar cliente'
+                            )}
+                          </td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(
+                              c,
+                              'modeloId',
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', whiteSpace: 'nowrap' }}>
+                                <span style={{ fontWeight: 700, color: esModExclusivo ? '#7e22ce' : '#0f172a' }}>
+                                  {modFolio}
+                                </span>
+                                {esModExclusivo ? (
+                                  <Tooltip title={modDesc || 'Modelo exclusivo para esta cotización'} arrow>
+                                    <span className="badge-modelo-unico">Exclusivo / Único</span>
+                                  </Tooltip>
+                                ) : (
+                                  <span style={{ fontSize: '11px', color: '#64748b' }}>Catálogo 2025</span>
+                                )}
+                              </div>,
+                              'Doble clic para cambiar modelo base'
+                            )}
+                          </td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(
+                              c,
+                              'matriz',
+                              <span className={`matriz-badge ${modMatriz.toLowerCase()}`}>
+                                {modMatriz}
+                              </span>,
+                              'Doble clic para cambiar matriz'
+                            )}
+                          </td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(
+                              c,
+                              'subtotal',
+                              `$${subtotalNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+                              'Doble clic para editar subtotal (recalcula IVA y Total)'
+                            )}
+                          </td>
+                          <td style={{ whiteSpace: 'nowrap' }} title="Calculado automáticamente (16%)">
+                            ${ivaNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td style={{ fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }} title="Calculado automáticamente">
+                            ${totalNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(c, 'fechaEmision', c.fechaEmision || '—', 'Doble clic para editar fecha de emisión')}
+                          </td>
+                          <td style={{ color: '#475569', whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(c, 'fechaVigencia', c.fechaVigencia || '—', 'Doble clic para editar vigencia')}
+                          </td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {renderEditableCell(
+                              c,
+                              'estatus',
+                              <span className={`status-cot ${estatusStr.toLowerCase()}`}>
+                                {estatusStr}
+                              </span>,
+                              'Doble clic para cambiar estatus'
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                              <Tooltip title="Descargar cotización" arrow>
+                                <IconButton
+                                  size="small"
+                                  sx={{
+                                    color: '#64748b',
+                                    '&:hover': { color: '#0284c7', backgroundColor: '#f0f9ff' }
+                                  }}
+                                >
+                                  <DownloadIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Generar enlace" arrow>
+                                <IconButton
+                                  size="small"
+                                  sx={{
+                                    color: '#64748b',
+                                    '&:hover': { color: '#0284c7', backgroundColor: '#f0f9ff' }
+                                  }}
+                                >
+                                  <LinkIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Eliminar cotización" arrow>
+                                <IconButton
+                                  size="small"
+                                  className="delete-btn"
+                                  onClick={() => setCotizacionAEliminar(c)}
+                                  sx={{
+                                    color: '#94a3b8',
+                                    '&:hover': { color: '#ef4444', backgroundColor: '#fef2f2' }
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
+
+        {/* Modal de Confirmación de Eliminación */}
+        {cotizacionAEliminar && (
+          <div className="modal-eliminar-overlay" onClick={() => !eliminando && setCotizacionAEliminar(null)}>
+            <div className="modal-eliminar-card" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-eliminar-header">
+                <div className="modal-eliminar-icon-wrap">
+                  <WarningAlertIcon />
+                </div>
+                <div>
+                  <h3 className="modal-eliminar-titulo">¿Eliminar cotización comercial?</h3>
+                  <p className="modal-eliminar-subtitulo">
+                    Estás por remover este registro de cotización del sistema.
+                  </p>
+                </div>
+              </div>
+
+              <div className="modal-eliminar-info-box">
+                <div className="modal-eliminar-cliente-nombre">
+                  {cotizacionAEliminar.folio} — {getClienteNombre(cotizacionAEliminar)}
+                </div>
+                <div className="modal-eliminar-cliente-meta">
+                  <span className="modal-eliminar-clave-tag">
+                    {getClienteClave(cotizacionAEliminar)}
+                  </span>
+                  <span>
+                    <strong>Monto Total:</strong> ${parseMonto(cotizacionAEliminar.montoTotal).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                  </span>
+                </div>
+              </div>
+
+              <div className="modal-eliminar-warning">
+                Esta acción eliminará de forma permanente el registro de la cotización y su cálculo comercial.
+              </div>
+
+              <div className="modal-eliminar-actions">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={eliminando}
+                  className="btn-modal-cancelar"
+                  onClick={() => setCotizacionAEliminar(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={eliminando}
+                  className="btn-modal-confirmar"
+                  startIcon={<DeleteIcon />}
+                  onClick={async () => {
+                    try {
+                      setEliminando(true);
+                      await eliminarCotizacion(cotizacionAEliminar.id);
+                      setCotizacionAEliminar(null);
+                    } catch (err) {
+                      console.error('Error al eliminar cotización:', err);
+                      alert('No se pudo eliminar la cotización: ' + (err.message || 'Error en el servidor'));
+                    } finally {
+                      setEliminando(false);
+                    }
+                  }}
+                >
+                  {eliminando ? 'Eliminando...' : 'Sí, eliminar cotización'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
-      {/* Modal / Template de Creación de Cotización */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800, color: '#0f172a' }}>
-          Generar Nueva Cotización Comercial (Modelo 2025)
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <form id="form-cotizacion" onSubmit={handleCrearCotizacion}>
-            <div className="core-form-grid">
-              {/* Selección de Cliente */}
-              <div className="core-form-group full">
-                <label>Cliente Destino (Opcional - Prospección o Catálogo)</label>
-                <select
-                  value={selectedClienteId}
-                  onChange={(e) => setSelectedClienteId(e.target.value)}
-                >
-                  <option value="">-- Selecciona un Cliente del Catálogo (Opcional) --</option>
-                  {clientes.map((cli) => {
-                    const clave = cli.claveCliente || cli.clave_cliente || 'CLI';
-                    const razon = cli.razonSocial || cli.razon_social || cli.rfc;
-                    return (
-                      <option key={cli.id} value={cli.id}>
-                        {clave} - {razon} ({cli.rfc})
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              {/* Banner informativo si el cliente tiene estatus ÚNICO */}
-              {esClienteUnico && (
-                <div className="banner-cliente-unico" style={{ gridColumn: 'span 2' }}>
-                  <div className="banner-cliente-unico-icon">
-                    <SparklesIcon />
-                  </div>
-                  <div className="banner-cliente-unico-text">
-                    <strong>Cliente con Estatus ÚNICO detectado:</strong>
-                    <br />
-                    Este cliente contrata por única ocasión y no entra en los modelos de catálogo. Se ha activado la creación de un <strong>Modelo Exclusivo a la Medida</strong> para esta cotización.
-                  </div>
-                </div>
-              )}
-
-              {/* Interruptor / Toggle de Modelo Exclusivo */}
-              <div
-                className="toggle-modelo-exclusivo"
-                style={{ gridColumn: 'span 2' }}
-                onClick={() => setEsModeloExclusivo(!esModeloExclusivo)}
-              >
-                <div className="toggle-label-wrap">
-                  <input
-                    type="checkbox"
-                    checked={esModeloExclusivo}
-                    onChange={(e) => setEsModeloExclusivo(e.target.checked)}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ cursor: 'pointer', width: '16px', height: '16px' }}
-                  />
-                  <div>
-                    <span className="toggle-label-title">
-                      {esModeloExclusivo ? '✨ Modelo Exclusivo / A la Medida Activado' : 'Modelo Estándar de Catálogo'}
-                    </span>
-                    <span style={{ display: 'block', fontSize: '11.5px', color: '#6b21a8' }}>
-                      {esModeloExclusivo
-                        ? 'Este modelo solo aplicará para esta cotización y no se registrará en el catálogo maestro.'
-                        : 'Haz clic aquí si requieres crear un modelo exclusivo para un servicio único o no catalogado.'}
-                    </span>
-                  </div>
-                </div>
-                <span className="badge-modelo-unico">
-                  {esModeloExclusivo ? 'Servicio Único' : 'Catálogo 2025'}
-                </span>
-              </div>
-
-              {/* Selección de Modelo de Catálogo O Subformulario de Modelo Exclusivo */}
-              {esModeloExclusivo ? (
-                <div className="caja-modelo-exclusivo" style={{ gridColumn: 'span 2' }}>
-                  <div className="caja-modelo-exclusivo-header">
-                    <span className="caja-modelo-exclusivo-title">
-                      Especificación del Modelo Exclusivo (Servicio Único)
-                    </span>
-                    <span className="badge-modelo-unico">No catalogado</span>
-                  </div>
-
-                  <div className="core-form-grid" style={{ marginBottom: 0, gap: '10px' }}>
-                    <div className="core-form-group">
-                      <label>Folio del Modelo Exclusivo</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: MOD-UNI-0015"
-                        value={modeloExclusivo.folioModelo}
-                        onChange={(e) =>
-                          setModeloExclusivo({ ...modeloExclusivo, folioModelo: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div className="core-form-group">
-                      <label>Matriz Analítica</label>
-                      <select
-                        value={modeloExclusivo.matriz}
-                        onChange={(e) =>
-                          setModeloExclusivo({ ...modeloExclusivo, matriz: e.target.value })
-                        }
-                      >
-                        <option value="AGUAS">AGUAS</option>
-                        <option value="EMISIONES">EMISIONES</option>
-                        <option value="LABORALES">LABORALES</option>
-                        <option value="ALIMENTOS">ALIMENTOS</option>
-                        <option value="ESPECIAL">ESPECIAL / OTRA</option>
-                      </select>
-                    </div>
-
-                    <div className="core-form-group" style={{ gridColumn: 'span 2' }}>
-                      <label>Norma o Metodología Referencial (Opcional)</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: Norma específica, ASTM o método interno del cliente"
-                        value={modeloExclusivo.norma}
-                        onChange={(e) =>
-                          setModeloExclusivo({ ...modeloExclusivo, norma: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div className="core-form-group" style={{ gridColumn: 'span 2' }}>
-                      <label>Descripción del Paquete / Parámetros del Servicio Único</label>
-                      <input
-                        type="text"
-                        placeholder="Describe los parámetros específicos para este servicio puntual..."
-                        value={modeloExclusivo.descripcion}
-                        onChange={(e) =>
-                          setModeloExclusivo({ ...modeloExclusivo, descripcion: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    <div className="core-form-group" style={{ gridColumn: 'span 2' }}>
-                      <label>Precio Base Unitario (MXN) para esta Cotización</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        value={modeloExclusivo.precioBase}
-                        onChange={(e) =>
-                          setModeloExclusivo({ ...modeloExclusivo, precioBase: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="core-form-group full" style={{ gridColumn: 'span 2' }}>
-                  <label>Modelo Analítico Base (Catálogo 2025)</label>
-                  <select
-                    value={selectedModeloId}
-                    onChange={(e) => setSelectedModeloId(e.target.value)}
-                  >
-                    <option value="">-- Selecciona el Paquete Analítico del Catálogo --</option>
-                    {MODELOS_CATALOGO_2025.map((mod) => (
-                      <option key={mod.id} value={mod.id}>
-                        {mod.folioModelo} [{mod.matriz}] - {mod.norma} - {mod.descripcion} (${mod.precioBase.toLocaleString('es-MX')} MXN)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Puntos de muestreo / Cantidad */}
-              <div className="core-form-group">
-                <label>Puntos de Muestreo / Cantidad</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={puntosMuestreo}
-                  onChange={(e) => setPuntosMuestreo(e.target.value)}
-                />
-              </div>
-
-              {/* Descuento Porcentual */}
-              <div className="core-form-group">
-                <label>Descuento Comercial (%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={descuentoPorcentaje}
-                  onChange={(e) => setDescuentoPorcentaje(e.target.value)}
-                />
-              </div>
-
-              {/* Vigencia en Días */}
-              <div className="core-form-group">
-                <label>Vigencia de Propuesta (Días)</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={vigenciaDias}
-                  onChange={(e) => setVigenciaDias(e.target.value)}
-                />
-              </div>
-
-              {/* Ejecutiva Responsable (Solo lectura) */}
-              <div className="core-form-group">
-                <label>Ejecutiva Responsable (Firma 1)</label>
-                <input
-                  type="text"
-                  readOnly
-                  disabled
-                  value={`${user?.nombre || 'Ejecutiva'} ${user?.apellido || 'NEXUS'}`}
-                  style={{ backgroundColor: '#f1f5f9' }}
-                />
-              </div>
-            </div>
-
-            {/* Desglose Financiero Calculado en Vivo */}
-            <div className="desglose-financiero-box">
-              <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block', mb: 1 }}>
-                Resumen Fiscal & Financiero
-              </strong>
-
-              <div className="desglose-fila">
-                <span>Subtotal Bruto ({puntosMuestreo} punto{puntosMuestreo > 1 ? 's' : ''}):</span>
-                <span>${calculos.subtotalBruto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-              </div>
-
-              {calculos.montoDescuento > 0 && (
-                <div className="desglose-fila" style={{ color: '#059669' }}>
-                  <span>Descuento aplicado ({descuentoPorcentaje}%):</span>
-                  <span>-${calculos.montoDescuento.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-                </div>
-              )}
-
-              <div className="desglose-fila">
-                <span>Subtotal Neto:</span>
-                <span>${calculos.subtotalNeto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-              </div>
-
-              <div className="desglose-fila">
-                <span>IVA Trasladado (16%):</span>
-                <span>${calculos.iva.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-              </div>
-
-              <div className="desglose-fila total">
-                <span>Monto Total a Cotizar:</span>
-                <span>${calculos.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</span>
-              </div>
-            </div>
-          </form>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenModal(false)} sx={{ textTransform: 'none', color: '#64748b' }}>
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            form="form-cotizacion"
-            variant="contained"
-            sx={{ textTransform: 'none', backgroundColor: '#0284c7', fontWeight: 600 }}
-          >
-            Generar Cotización
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Panel Lateral Drawer para Crear Cotización */}
+      <CotizacionDrawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        onSave={handleCrearCotizacion}
+        clientes={clientes}
+        catalogoModelos={catalogoModelos}
+        loadingModelos={loadingModelos}
+        siguienteFolio={siguienteFolio}
+        user={user}
+        totalCotizaciones={cotizaciones.length}
+      />
     </div>
   );
 }

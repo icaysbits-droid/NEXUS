@@ -2,17 +2,17 @@ import { useState, useMemo } from 'react';
 import IconButton from '@mui/material/IconButton';
 import SvgIcon from '@mui/material/SvgIcon';
 import Tooltip from '@mui/material/Tooltip';
-import Button from '@mui/material/Button';
 import EjecutivaNav from './EjecutivaNav';
+import SolicitudServicioPdfModal from './SolicitudServicioPdfModal';
 import '../../css/EjecutivaDashboard.css';
 import '../../css/clientes_eject.css';
 import '../../css/ListaGeneral.css';
 
-// Icono KPI: Clientes / Directorio
-function ClientsKpiIcon(props) {
+// Icono Carpeta
+function FolderIcon(props) {
   return (
-    <SvgIcon {...props} sx={{ fontSize: 20 }}>
-      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 3s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+    <SvgIcon {...props} sx={{ fontSize: props.size || 20 }}>
+      <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
     </SvgIcon>
   );
 }
@@ -35,15 +35,6 @@ function ClipboardCheckIcon(props) {
   );
 }
 
-// Icono KPI: Saldo / Cartera
-function DollarIcon(props) {
-  return (
-    <SvgIcon {...props} sx={{ fontSize: 20 }}>
-      <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
-    </SvgIcon>
-  );
-}
-
 // Icono Enlace VEF-20
 function LinkIcon(props) {
   return (
@@ -53,116 +44,352 @@ function LinkIcon(props) {
   );
 }
 
-export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lista-general', setActiveTab }) {
-  // Lista de clientes mock con datos comerciales y operativos
-  const [clientes] = useState([
-    {
-      id: '1',
-      clave_cliente: 'CLI-001',
-      razon_social: 'INDUSTRIAS METÁLICAS DEL NORTE S.A. DE C.V.',
-      rfc: 'IMN980312AB1',
-      telefono: '818-345-6789',
-      estatus: 'ACTIVO',
-      frecuencia: 'Alta (Semanal)',
-      servicios_total: 38,
-      ultimo_servicio: '10/11/2026',
-      vef20_estatus: 'Completado',
-      saldo: 45200.0,
-    },
-    {
-      id: '2',
-      clave_cliente: 'CLI-002',
-      razon_social: 'LOGÍSTICA Y TRANSPORTES DEL CENTRO S.A.',
-      rfc: 'LTC050819TZ4',
-      telefono: '442-198-4455',
-      estatus: 'ACTIVO',
-      frecuencia: 'Media (Quincenal)',
-      servicios_total: 14,
-      ultimo_servicio: '02/11/2026',
-      vef20_estatus: 'Completado',
-      saldo: 12850.5,
-    },
-    {
-      id: '3',
-      clave_cliente: 'CLI-003',
-      razon_social: 'CARLOS HUMBERTO MENDEZ RAMÍREZ',
-      rfc: 'MERC850412XX1',
-      telefono: '555-612-8901',
-      estatus: 'SEGUIMIENTO',
-      frecuencia: 'Baja (Esporádico)',
-      servicios_total: 3,
-      ultimo_servicio: '15/08/2026',
-      vef20_estatus: 'Pendiente',
-      saldo: 0.0,
-    },
-    {
-      id: '4',
-      clave_cliente: 'CLI-004',
-      razon_social: 'QUÍMICOS Y POLÍMEROS INDUSTRIALES S.A.',
-      rfc: 'QPI120304K12',
-      telefono: '333-890-1122',
-      estatus: 'ACTIVO',
-      frecuencia: 'Alta (Semanal)',
-      servicios_total: 29,
-      ultimo_servicio: '11/11/2026',
-      vef20_estatus: 'Completado',
-      saldo: 68400.0,
-    },
-    {
-      id: '5',
-      clave_cliente: 'CLI-005',
-      razon_social: 'SERVICIOS AMBIENTALES DE OCCIDENTE',
-      rfc: 'SAO190708MN9',
-      telefono: '331-456-7890',
-      estatus: 'UNICO',
-      frecuencia: 'Media (Quincenal)',
-      servicios_total: 8,
-      ultimo_servicio: '28/10/2026',
-      vef20_estatus: 'Pendiente',
-      saldo: 8750.0,
-    },
-  ]);
+// Icono Lupa
+function SearchIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+    </SvgIcon>
+  );
+}
 
-  // Filtros de búsqueda
+// Icono Ojo (Ver PDF de Solicitud de Servicio)
+function EyeIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 15 }}>
+      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+    </SvgIcon>
+  );
+}
+
+// Datos iniciales de Carpetas por Cliente y su Historial de Servicios
+const CARPETAS_INICIALES = [
+  {
+    id: '1',
+    clave_cliente: 'CLI-001',
+    nombre_carpeta: 'GRUPO WALMART MÉXICO',
+    razon_social_matriz: 'NUEVA WAL-MART DE MÉXICO S. DE R.L. DE C.V.',
+    rfc_matriz: 'NWM9709244W4',
+    telefono: '55-5283-0100',
+    estatus: 'ACTIVO',
+    recien_creado: false,
+    ultimo_servicio: '18/11/2026',
+    vef20_estatus: 'Completado',
+    saldo: 64800.0,
+    servicios: [
+      {
+        id: 'srv-101',
+        folio_cotizacion: 'COT-1089',
+        folio_ss: null,
+        razon_social_servicio: 'NUEVA WAL-MART DE MÉXICO S. DE R.L. DE C.V.',
+        direccion_muestreo: 'Circuito Centro Comercial #2251, Cd. Satélite, Edo. Méx.',
+        encargado: 'Lic. Laura Gómez (Seguridad EHS)',
+        norma_modelo: 'NOM-002 Aguas Residuales (Compuesta 24h) [LA05315]',
+        matriz: 'AGUAS',
+        fecha: '18/11/2026',
+        vigencia: '18/12/2026',
+        monto: 18500.0,
+        estatus: 'EN_ESPERA_SS',
+      },
+      {
+        id: 'srv-102',
+        folio_cotizacion: 'COT-1095',
+        folio_ss: null,
+        razon_social_servicio: 'OPERADORA WAL-MART S. DE R.L. DE C.V.',
+        direccion_muestreo: 'Anillo Periférico Sur #4690, Coyoacán, CDMX',
+        encargado: 'Ing. Miguel Ángel López (Jefe de Planta)',
+        norma_modelo: 'NOM-127 Agua Potable y Hielo [GVE-059-2025]',
+        matriz: 'ALIMENTOS',
+        fecha: '19/11/2026',
+        vigencia: '19/12/2026',
+        monto: 9400.0,
+        estatus: 'PENDIENTE',
+      },
+      {
+        id: 'srv-103',
+        folio_cotizacion: 'COT-1042',
+        folio_ss: 'SS-2026-041',
+        razon_social_servicio: 'NUEVA WAL-MART DE MÉXICO S. DE R.L. DE C.V.',
+        direccion_muestreo: 'Blvd. Manuel Ávila Camacho #491, Naucalpan, Edo. Méx.',
+        encargado: 'Ing. Roberto Pérez (Mantenimiento)',
+        norma_modelo: 'NOM-002 Descarga Alcantarillado (Puntual) [LA05482]',
+        matriz: 'AGUAS',
+        fecha: '04/11/2026',
+        vigencia: '04/12/2026',
+        monto: 14200.0,
+        estatus: 'CONCLUIDA',
+      },
+      {
+        id: 'srv-104',
+        folio_cotizacion: 'COT-1035',
+        folio_ss: 'SS-2026-038',
+        razon_social_servicio: 'INMOBILIARIA WAL-MART DE MÉXICO S.A. DE C.V.',
+        direccion_muestreo: 'Autopista México-Querétaro Km 42.5, Cuautitlán Izcalli',
+        encargado: 'Ing. Patricia Vega (Responsable Ambiental)',
+        norma_modelo: 'NOM-085 Emisiones Fuentes Fijas (HB) [EM02141]',
+        matriz: 'EMISIONES',
+        fecha: '28/10/2026',
+        vigencia: '28/11/2026',
+        monto: 22700.0,
+        estatus: 'CONCLUIDA',
+      },
+      {
+        id: 'srv-105',
+        folio_cotizacion: 'COT-0912',
+        folio_ss: null,
+        razon_social_servicio: 'NUEVA WAL-MART DE MÉXICO S. DE R.L. DE C.V.',
+        direccion_muestreo: 'Blvd. Manuel Ávila Camacho #491, Naucalpan',
+        encargado: 'Ing. Roberto Pérez',
+        norma_modelo: 'NOM-081 Ruido Perimetral 2 Turnos [EM02148]',
+        matriz: 'EMISIONES',
+        fecha: '10/09/2026',
+        vigencia: '10/10/2026',
+        monto: 11800.0,
+        estatus: 'VENCIDA',
+      },
+    ],
+  },
+  {
+    id: '2',
+    clave_cliente: 'CLI-002',
+    nombre_carpeta: 'COCA-COLA FEMSA (GRUPO EMBOTELLADOR)',
+    razon_social_matriz: 'PROPIMEX S. DE R.L. DE C.V.',
+    rfc_matriz: 'PRO840512KL9',
+    telefono: '442-198-4455',
+    estatus: 'ACTIVO',
+    recien_creado: false,
+    ultimo_servicio: '15/11/2026',
+    vef20_estatus: 'Completado',
+    saldo: 34500.0,
+    servicios: [
+      {
+        id: 'srv-201',
+        folio_cotizacion: 'COT-1102',
+        folio_ss: null,
+        razon_social_servicio: 'PROPIMEX S. DE R.L. DE C.V.',
+        direccion_muestreo: 'Av. 5 de Febrero #1320, Zona Industrial, Querétaro',
+        encargado: 'Ing. Fernando Soto (Tratamiento de Aguas)',
+        norma_modelo: 'NOM-001 (Color y Tox) Compuesta 24h [LA05312]',
+        matriz: 'AGUAS',
+        fecha: '15/11/2026',
+        vigencia: '15/12/2026',
+        monto: 24500.0,
+        estatus: 'EN_ESPERA_SS',
+      },
+      {
+        id: 'srv-202',
+        folio_cotizacion: 'COT-0994',
+        folio_ss: 'SS-2026-029',
+        razon_social_servicio: 'COMERCIALIZADORA FEMSA S.A. DE C.V.',
+        direccion_muestreo: 'Paseo Tollocan Km 54, Toluca',
+        encargado: 'Ing. Diana Morales (Seguridad Industrial)',
+        norma_modelo: 'NOM-011 Ruido Laboral + NOM-025 Iluminación [LB00662]',
+        matriz: 'LABORALES',
+        fecha: '12/10/2026',
+        vigencia: '12/11/2026',
+        monto: 16200.0,
+        estatus: 'CONCLUIDA',
+      },
+    ],
+  },
+  {
+    id: '3',
+    clave_cliente: 'CLI-003',
+    nombre_carpeta: 'INDUSTRIAS METÁLICAS DEL NORTE',
+    razon_social_matriz: 'INDUSTRIAS METÁLICAS DEL NORTE S.A. DE C.V.',
+    rfc_matriz: 'IMN980312AB1',
+    telefono: '818-345-6789',
+    estatus: 'ACTIVO',
+    recien_creado: true,
+    ultimo_servicio: '19/11/2026',
+    vef20_estatus: 'Completado',
+    saldo: 15800.0,
+    servicios: [
+      {
+        id: 'srv-301',
+        folio_cotizacion: 'COT-1110',
+        folio_ss: null,
+        razon_social_servicio: 'INDUSTRIAS METÁLICAS DEL NORTE S.A. DE C.V.',
+        direccion_muestreo: 'Av. Nogalar Sur #804, San Nicolás de los Garza, N.L.',
+        encargado: 'Ing. Arturo Garza (Superintendente)',
+        norma_modelo: 'NOM-043 Partículas Fuentes Fijas [EM02145]',
+        matriz: 'EMISIONES',
+        fecha: '19/11/2026',
+        vigencia: '19/12/2026',
+        monto: 15800.0,
+        estatus: 'PENDIENTE',
+      },
+    ],
+  },
+  {
+    id: '4',
+    clave_cliente: 'CLI-004',
+    nombre_carpeta: 'QUÍMICOS Y POLÍMEROS INDUSTRIALES',
+    razon_social_matriz: 'QUÍMICOS Y POLÍMEROS INDUSTRIALES S.A. DE C.V.',
+    rfc_matriz: 'QPI120304K12',
+    telefono: '333-890-1122',
+    estatus: 'ACTIVO',
+    recien_creado: true,
+    ultimo_servicio: '20/11/2026',
+    vef20_estatus: 'Pendiente',
+    saldo: 0.0,
+    servicios: [],
+  },
+  {
+    id: '5',
+    clave_cliente: 'CLI-005',
+    nombre_carpeta: 'SERVICIOS AMBIENTALES DE OCCIDENTE (ARCHIVO)',
+    razon_social_matriz: 'SERVICIOS AMBIENTALES DE OCCIDENTE S.A.',
+    rfc_matriz: 'SAO190708MN9',
+    telefono: '331-456-7890',
+    estatus: 'HISTORIAL',
+    recien_creado: false,
+    ultimo_servicio: '15/05/2026',
+    vef20_estatus: 'Vencido',
+    saldo: 0.0,
+    servicios: [
+      {
+        id: 'srv-501',
+        folio_cotizacion: 'COT-0710',
+        folio_ss: null,
+        razon_social_servicio: 'SERVICIOS AMBIENTALES DE OCCIDENTE S.A.',
+        direccion_muestreo: 'Av. Vallarta #6500, Zapopan, Jal.',
+        encargado: 'Ing. Carlos Méndez',
+        norma_modelo: 'NOM-003 Agua Tratada Puntual [LA05316]',
+        matriz: 'AGUAS',
+        fecha: '15/05/2026',
+        vigencia: '15/06/2026',
+        monto: 8900.0,
+        estatus: 'RECHAZADA',
+      },
+    ],
+  },
+];
+
+export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lista-general', setActiveTab }) {
+  const [carpetas, setCarpetas] = useState(CARPETAS_INICIALES);
+
+  // Pestaña superior: 'ACTIVOS' (Clientes activos y recién creados) | 'HISTORIAL' (Todos / Archivo general)
+  const [vistaCartelera, setVistaCartelera] = useState('ACTIVOS');
+
+  // Buscador unificado
   const [busqueda, setBusqueda] = useState('');
-  const [filtroFrecuencia, setFiltroFrecuencia] = useState('TODOS');
-  const [filtroEstatus, setFiltroEstatus] = useState('TODOS');
+
+  // Estado para abrir la Carpeta del Cliente y el Visor PDF de Solicitud de Servicio (SS)
+  const [carpetaAbiertaId, setCarpetaAbiertaId] = useState(null);
+  const [servicioPdfModal, setServicioPdfModal] = useState(null);
+
+  // Carpeta seleccionada en el Modal
+  const carpetaSeleccionada = useMemo(
+    () => carpetas.find((c) => c.id === carpetaAbiertaId) || null,
+    [carpetas, carpetaAbiertaId]
+  );
 
   // Cálculos dinámicos de KPIs
   const kpis = useMemo(() => {
-    const total = clientes.length;
-    const activos = clientes.filter((c) => c.estatus === 'ACTIVO').length;
-    const altaFrecuencia = clientes.filter((c) => c.frecuencia.toLowerCase().includes('alta')).length;
-    const vefPendientes = clientes.filter((c) => c.vef20_estatus.toLowerCase().includes('pendiente')).length;
-    const saldoTotal = clientes.reduce((acc, curr) => acc + (Number(curr.saldo) || 0), 0);
+    const activas = carpetas.filter((c) => c.estatus === 'ACTIVO');
+    const totalEsperandoSS = carpetas.reduce(
+      (acc, c) => acc + c.servicios.filter((s) => s.estatus === 'EN_ESPERA_SS').length,
+      0
+    );
+    const totalSSActivas = carpetas.reduce(
+      (acc, c) => acc + c.servicios.filter((s) => s.folio_ss).length,
+      0
+    );
 
     return {
-      total,
-      activos,
-      altaFrecuencia,
-      vefPendientes,
-      saldoTotal,
+      totalCarpetas: carpetas.length,
+      activasCount: activas.length,
+      totalEsperandoSS,
+      totalSSActivas,
     };
-  }, [clientes]);
+  }, [carpetas]);
 
-  // Filtrado de la tabla
-  const clientesFiltrados = useMemo(() => {
-    return clientes.filter((c) => {
-      const matchBusqueda =
-        c.razon_social.toLowerCase().includes(busqueda.toLowerCase()) ||
-        c.clave_cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
-        c.rfc.toLowerCase().includes(busqueda.toLowerCase());
+  // DETECTOR INTELIGENTE: Detecta si la búsqueda coincide con un Folio SS, Folio Cotización, Razón Social o Encargado
+  const coincidenciaDetectada = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    if (q.length < 2) return null;
 
-      const matchFrecuencia =
-        filtroFrecuencia === 'TODOS' ||
-        c.frecuencia.toLowerCase().includes(filtroFrecuencia.toLowerCase());
+    for (const carpeta of carpetas) {
+      // 1. Coincidencia con Folio SS o Cotización
+      const srvMatch = carpeta.servicios.find(
+        (s) =>
+          (s.folio_ss && s.folio_ss.toLowerCase().includes(q)) ||
+          s.folio_cotizacion.toLowerCase().includes(q)
+      );
+      if (srvMatch) {
+        return {
+          tipo: srvMatch.folio_ss && srvMatch.folio_ss.toLowerCase().includes(q) ? 'FOLIO DE SOLICITUD DE SERVICIO (SS)' : 'FOLIO DE COTIZACIÓN',
+          carpeta,
+          razonSocial: srvMatch.razon_social_servicio,
+          encargado: srvMatch.encargado,
+          folio: srvMatch.folio_ss && srvMatch.folio_ss.toLowerCase().includes(q) ? srvMatch.folio_ss : srvMatch.folio_cotizacion,
+          servicio: srvMatch,
+        };
+      }
 
-      const matchEstatus =
-        filtroEstatus === 'TODOS' || c.estatus === filtroEstatus;
+      // 2. Coincidencia con Razón Social, Encargado, Dirección o RFC
+      const matchGeneral =
+        carpeta.nombre_carpeta.toLowerCase().includes(q) ||
+        carpeta.razon_social_matriz.toLowerCase().includes(q) ||
+        carpeta.rfc_matriz.toLowerCase().includes(q) ||
+        carpeta.servicios.some(
+          (s) =>
+            s.razon_social_servicio.toLowerCase().includes(q) ||
+            s.encargado.toLowerCase().includes(q) ||
+            s.direccion_muestreo.toLowerCase().includes(q)
+        );
 
-      return matchBusqueda && matchFrecuencia && matchEstatus;
+      if (matchGeneral) {
+        return {
+          tipo: 'CLIENTE CON HISTORIAL PREVIO',
+          carpeta,
+          razonSocial: carpeta.razon_social_matriz,
+          encargado: carpeta.servicios[0]?.encargado || 'Contacto comercial',
+          folio: null,
+          servicio: null,
+        };
+      }
+    }
+    return null;
+  }, [busqueda, carpetas]);
+
+  // Filtrado de carpetas basado estrictamente en el Buscador
+  const carpetasFiltradas = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+
+    return carpetas.filter((c) => {
+      const matchTexto =
+        !q ||
+        c.nombre_carpeta.toLowerCase().includes(q) ||
+        c.razon_social_matriz.toLowerCase().includes(q) ||
+        c.clave_cliente.toLowerCase().includes(q) ||
+        c.rfc_matriz.toLowerCase().includes(q) ||
+        c.servicios.some(
+          (srv) =>
+            srv.folio_cotizacion.toLowerCase().includes(q) ||
+            (srv.folio_ss && srv.folio_ss.toLowerCase().includes(q)) ||
+            srv.razon_social_servicio.toLowerCase().includes(q) ||
+            srv.encargado.toLowerCase().includes(q) ||
+            srv.norma_modelo.toLowerCase().includes(q)
+        );
+
+      const matchVista =
+        q.length >= 2
+          ? true
+          : vistaCartelera === 'ACTIVOS'
+          ? c.estatus === 'ACTIVO'
+          : true;
+
+      return matchTexto && matchVista;
     });
-  }, [clientes, busqueda, filtroFrecuencia, filtroEstatus]);
+  }, [carpetas, busqueda, vistaCartelera]);
+
+  // Abrir carpeta
+  const handleAbrirCarpeta = (carpeta) => {
+    setCarpetaAbiertaId(carpeta.id);
+    setServicioPdfModal(null);
+  };
 
   return (
     <div className="ejecutiva-layout">
@@ -174,144 +401,164 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
         onLogout={onLogout}
       />
 
-      {/* Contenido Principal de Lista General & KPIs */}
+      {/* Contenido Principal */}
       <main className="ejecutiva-main">
         <div className="lista-general-container">
           {/* Encabezado */}
           <header className="lista-header">
             <div className="lista-titulo">
-              <h2>Lista General & Métricas Comerciales</h2>
+              <h2>Cartelera de Carpetas de Clientes</h2>
               <p className="lista-subtitulo">
-                Monitoreo de frecuencia de servicios, expedientes VEF-20 e indicadores clave de rendimiento (KPIs)
+                Consulta centralizada de expedientes de clientes y trazabilidad de cotizaciones a solicitudes de servicio (SS)
               </p>
             </div>
           </header>
 
-          {/* ================= KPIS COMPACTOS EN LÍNEA (STAT PILLS) ================= */}
+          {/* ================= KPIS COMPACTOS ================= */}
           <div className="kpis-grid">
-            {/* KPI 1: Total Clientes */}
             <div className="kpi-card">
               <div className="kpi-icon-wrap kpi-icon-blue">
-                <ClientsKpiIcon />
+                <FolderIcon size={18} />
               </div>
               <div className="kpi-content">
-                <span className="kpi-label">Cartera:</span>
-                <span className="kpi-value">{kpis.total}</span>
-                <span className="kpi-extra">({kpis.activos} activos)</span>
+                <span className="kpi-label">Carpetas Activas:</span>
+                <span className="kpi-value">{kpis.activasCount}</span>
+                <span className="kpi-extra">clientes</span>
               </div>
             </div>
 
-            {/* KPI 2: Frecuencia Alta */}
-            <div className="kpi-card">
-              <div className="kpi-icon-wrap kpi-icon-green">
-                <TrendUpIcon />
-              </div>
-              <div className="kpi-content">
-                <span className="kpi-label">Frecuencia Alta:</span>
-                <span className="kpi-value">{kpis.altaFrecuencia}</span>
-                <span className="kpi-extra">(Semanal)</span>
-              </div>
-            </div>
-
-            {/* KPI 3: Expedientes VEF-20 Pendientes */}
             <div className="kpi-card">
               <div className="kpi-icon-wrap kpi-icon-amber">
                 <ClipboardCheckIcon />
               </div>
               <div className="kpi-content">
-                <span className="kpi-label">VEF-20:</span>
-                <span className="kpi-value">{kpis.vefPendientes}</span>
-                <span className="kpi-extra">pendientes</span>
+                <span className="kpi-label">En Espera de SS:</span>
+                <span className="kpi-value">{kpis.totalEsperandoSS}</span>
+                <span className="kpi-extra">aceptadas</span>
               </div>
             </div>
 
-            {/* KPI 4: Saldo en Cartera */}
             <div className="kpi-card">
-              <div className="kpi-icon-wrap kpi-icon-purple">
-                <DollarIcon />
+              <div className="kpi-icon-wrap kpi-icon-green">
+                <TrendUpIcon />
               </div>
               <div className="kpi-content">
-                <span className="kpi-label">Saldo Cartera:</span>
-                <span className="kpi-value">
-                  ${kpis.saldoTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                </span>
+                <span className="kpi-label">Solicitudes de Servicio (SS):</span>
+                <span className="kpi-value">{kpis.totalSSActivas}</span>
+                <span className="kpi-extra">emitidas</span>
               </div>
             </div>
           </div>
 
-          {/* ================= FILTROS Y BÚSQUEDA ================= */}
-          <div className="filtros-bar">
-            <div className="filtros-inputs">
-              <input
-                type="text"
-                placeholder="Buscar por cliente, clave o RFC..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="input-buscar-lista"
-              />
-
-              <select
-                value={filtroFrecuencia}
-                onChange={(e) => setFiltroFrecuencia(e.target.value)}
-                className="select-filtro-lista"
+          {/* ================= PESTAÑAS DE CARTELERA (ACTIVOS VS HISTORIAL) ================= */}
+          <div className="cartelera-tabs-bar">
+            <div className="cartelera-tabs-left">
+              <button
+                type="button"
+                className={`cartelera-tab-btn ${vistaCartelera === 'ACTIVOS' ? 'active' : ''}`}
+                onClick={() => setVistaCartelera('ACTIVOS')}
               >
-                <option value="TODOS">Todas las frecuencias</option>
-                <option value="Alta">Alta (Semanal)</option>
-                <option value="Media">Media (Quincenal/Mensual)</option>
-                <option value="Baja">Baja (Esporádico)</option>
-              </select>
+                <span>🟢 Clientes Activos & Recientes</span>
+                <span className="tab-count-pill">
+                  {carpetas.filter((c) => c.estatus === 'ACTIVO').length}
+                </span>
+              </button>
 
-              <select
-                value={filtroEstatus}
-                onChange={(e) => setFiltroEstatus(e.target.value)}
-                className="select-filtro-lista"
+              <button
+                type="button"
+                className={`cartelera-tab-btn ${vistaCartelera === 'HISTORIAL' ? 'active' : ''}`}
+                onClick={() => setVistaCartelera('HISTORIAL')}
               >
-                <option value="TODOS">Todos los estatus</option>
-                <option value="ACTIVO">Activos</option>
-                <option value="SEGUIMIENTO">Seguimiento</option>
-                <option value="UNICO">Únicos</option>
-              </select>
-            </div>
-
-            <div className="contador-registros">
-              Mostrando {clientesFiltrados.length} de {clientes.length} clientes
+                <span>🗂️ Historial General de Clientes</span>
+                <span className="tab-count-pill">{carpetas.length}</span>
+              </button>
             </div>
           </div>
 
-          {/* ================= TABLA DE LISTA GENERAL ================= */}
+          {/* ================= BUSCADOR DIRECTO Y LIMPIO ================= */}
+          <div className="filtros-bar">
+            <div className="filtros-top-row">
+              <div className="search-box-wrapper">
+                <span className="search-icon-adornment">
+                  <SearchIcon />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Buscar cliente por Razón Social, Folio SS, Folio Cotización, RFC o Dirección (ej: Walmart, SS-2026-041, COT-1089)..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="input-buscar-lista"
+                />
+                {busqueda && (
+                  <button
+                    type="button"
+                    className="clear-search-btn"
+                    onClick={() => setBusqueda('')}
+                    title="Limpiar búsqueda"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              <div className="contador-registros">
+                Mostrando {carpetasFiltradas.length} cliente(s)
+              </div>
+            </div>
+          </div>
+
+          {/* ================= BANNER DETECTOR INTELIGENTE DE HISTORIAL ================= */}
+          {coincidenciaDetectada && (
+            <div className="smart-detection-banner">
+              <div className="smart-detection-info">
+                <div className="smart-detection-title">
+                  <span>✨ ¡Cliente con Historial Detectado en el Sistema!</span>
+                  <span className="smart-detection-badge">{coincidenciaDetectada.tipo}</span>
+                </div>
+                <div className="smart-detection-desc">
+                  La búsqueda coincide con la <strong>Carpeta: {coincidenciaDetectada.carpeta.nombre_carpeta}</strong> ({coincidenciaDetectada.carpeta.clave_cliente}).
+                  <br />
+                  <span>
+                    • <strong>Razón Social:</strong> {coincidenciaDetectada.razonSocial}
+                  </span>
+                </div>
+              </div>
+
+              <div className="smart-detection-actions">
+                <button
+                  type="button"
+                  className="btn-abrir-carpeta"
+                  onClick={() => handleAbrirCarpeta(coincidenciaDetectada.carpeta)}
+                >
+                  <FolderIcon size={16} />
+                  <span>Abrir Carpeta</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================= TABLA DE CARPETAS DE CLIENTES ================= */}
           <div className="lista-tabla-scroll">
             <table>
               <thead>
                 <tr>
-                  <th>Clave Cliente</th>
-                  <th>Razón Social / Cliente</th>
-                  <th>Estatus Comercial</th>
-                  <th>Frecuencia de Servicios</th>
-                  <th>Total Servicios</th>
-                  <th>Último Servicio</th>
+                  <th>Clave</th>
+                  <th>Carpeta del Cliente / Razón Social Principal</th>
+                  <th>Estatus</th>
+                  <th>Servicios en Carpeta</th>
+                  <th>Último Movimiento</th>
                   <th>Expediente VEF-20</th>
-                  <th>Saldo Pendiente</th>
-                  <th>Teléfono</th>
-                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {clientesFiltrados.length === 0 ? (
+                {carpetasFiltradas.length === 0 ? (
                   <tr>
-                    <td colSpan={10} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                      No se encontraron clientes con los filtros seleccionados.
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                      No se encontraron carpetas con ese término de búsqueda.
                     </td>
                   </tr>
                 ) : (
-                  clientesFiltrados.map((c) => {
-                    const frecuenciaClase = c.frecuencia.toLowerCase().includes('alta')
-                      ? 'frecuencia-alta'
-                      : c.frecuencia.toLowerCase().includes('media')
-                      ? 'frecuencia-media'
-                      : 'frecuencia-baja';
-
-                    const estatusClase = c.estatus.toLowerCase();
-
+                  carpetasFiltradas.map((c) => {
                     const vefClase = c.vef20_estatus.toLowerCase().includes('complet')
                       ? 'vef-completo'
                       : c.vef20_estatus.toLowerCase().includes('pend')
@@ -319,38 +566,37 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
                       : 'vef-vencido';
 
                     return (
-                      <tr key={c.id}>
-                        <td style={{ fontWeight: 700, color: '#0033a0' }}>{c.clave_cliente}</td>
-                        <td style={{ fontWeight: 600 }}>{c.razon_social}</td>
+                      <tr key={c.id} onClick={() => handleAbrirCarpeta(c)} style={{ cursor: 'pointer' }}>
+                        <td style={{ fontWeight: 800, color: '#0033a0' }}>{c.clave_cliente}</td>
                         <td>
-                          <span className={`status-pill ${estatusClase}`}>
+                          <div className="folder-client-cell">
+                            <div className="folder-icon-box">
+                              <FolderIcon size={20} />
+                            </div>
+                            <div className="folder-client-texts">
+                              <div className="folder-group-name">
+                                <span>{c.nombre_carpeta}</span>
+                                {c.recien_creado && (
+                                  <span className="badge-recien-creado">Recién Creado</span>
+                                )}
+                              </div>
+                              <span className="folder-legal-sub">
+                                Matriz: {c.razon_social_matriz} ({c.rfc_matriz})
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`status-pill ${c.estatus === 'ACTIVO' ? 'activo' : 'unico'}`}>
                             {c.estatus}
                           </span>
                         </td>
                         <td>
-                          <span className={`frecuencia-badge ${frecuenciaClase}`}>
-                            {c.frecuencia}
-                          </span>
+                          <span className="srv-count-total">{c.servicios.length} registro(s)</span>
                         </td>
-                        <td style={{ textAlign: 'center', fontWeight: 600 }}>{c.servicios_total}</td>
                         <td>{c.ultimo_servicio}</td>
                         <td>
-                          <span className={`vef-badge ${vefClase}`}>
-                            {c.vef20_estatus}
-                          </span>
-                        </td>
-                        <td style={{ fontWeight: 600 }}>
-                          ${Number(c.saldo).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td>{c.telefono}</td>
-                        <td>
-                          <div className="table-actions">
-                            <Tooltip title="Generar enlace VEF-20" arrow>
-                              <IconButton size="small" className="table-btn link-btn">
-                                <LinkIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </div>
+                          <span className={`vef-badge ${vefClase}`}>{c.vef20_estatus}</span>
                         </td>
                       </tr>
                     );
@@ -361,6 +607,137 @@ export default function ListaGeneralEjecutiva({ user, onLogout, activeTab = 'lis
           </div>
         </div>
       </main>
+
+      {/* ================= MODAL DE CARPETA DEL CLIENTE: HISTORIAL DE SERVICIOS ================= */}
+      {carpetaSeleccionada && (
+        <div
+          className="carpeta-modal-overlay"
+          onClick={() => {
+            setCarpetaAbiertaId(null);
+            setServicioPdfModal(null);
+          }}
+        >
+          <div className="carpeta-modal-window" onClick={(e) => e.stopPropagation()}>
+            {/* Cabecera */}
+            <div className="carpeta-modal-header">
+              <div className="carpeta-header-left">
+                <div className="carpeta-big-icon">
+                  <FolderIcon size={28} />
+                </div>
+                <div className="carpeta-header-titles">
+                  <h3>
+                    <span>CARPETA: {carpetaSeleccionada.nombre_carpeta}</span>
+                    <span className="carpeta-clave-tag">{carpetaSeleccionada.clave_cliente}</span>
+                  </h3>
+                  <p className="carpeta-header-sub">
+                    Razón Social Matriz: <strong>{carpetaSeleccionada.razon_social_matriz}</strong> &nbsp;|&nbsp; RFC:{' '}
+                    <strong>{carpetaSeleccionada.rfc_matriz}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="carpeta-header-right">
+                <button
+                  type="button"
+                  className="btn-close-carpeta"
+                  onClick={() => {
+                    setCarpetaAbiertaId(null);
+                    setServicioPdfModal(null);
+                  }}
+                >
+                  Cerrar ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Título de la Sección: Historial de Servicios */}
+            <div className="carpeta-nav-tabs">
+              <div className="carpeta-subtab active">
+                <span>🔬 Historial de Servicios</span>
+                <span className="tab-count-pill">{carpetaSeleccionada.servicios.length}</span>
+              </div>
+            </div>
+
+            {/* Contenido de la Carpeta: Tabla de Servicios */}
+            <div className="carpeta-modal-body">
+              <div className="lista-tabla-scroll" style={{ maxHeight: '60vh' }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Folio Cotización</th>
+                      <th>Solicitud de Servicio (SS)</th>
+                      <th>Razón Social Facturación</th>
+                      <th>Análisis / Modelo Normativo</th>
+                      <th>Fecha</th>
+                      <th>Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {carpetaSeleccionada.servicios.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: 'center', padding: '34px', color: '#64748b' }}>
+                          No hay servicios registrados en esta carpeta.
+                        </td>
+                      </tr>
+                    ) : (
+                      carpetaSeleccionada.servicios.map((srv) => (
+                        <tr key={srv.id} style={{ cursor: 'default' }}>
+                          <td style={{ fontWeight: 800, color: '#0f172a' }}>{srv.folio_cotizacion}</td>
+                          <td>
+                            {srv.folio_ss || srv.estatus === 'EN_ESPERA_SS' ? (
+                              <button
+                                type="button"
+                                className="btn-ver-ss"
+                                onClick={() => setServicioPdfModal(srv)}
+                                title="Ver formato PDF de la Solicitud de Servicio (SS)"
+                              >
+                                <EyeIcon />
+                                <span>Ver</span>
+                              </button>
+                            ) : (
+                              <span style={{ color: '#94a3b8', fontSize: '11.5px' }}>Sin SS</span>
+                            )}
+                          </td>
+                          <td style={{ fontSize: '12px', fontWeight: 600 }}>{srv.razon_social_servicio}</td>
+                          <td>
+                            <span style={{ fontWeight: 700 }}>{srv.norma_modelo}</span>
+                          </td>
+                          <td>{srv.fecha}</td>
+                          <td>
+                            {srv.estatus === 'CONCLUIDA' && (
+                              <span className="srv-status-badge concluida">✅ CONCLUIDA (SS CREADA)</span>
+                            )}
+                            {srv.estatus === 'EN_ESPERA_SS' && (
+                              <span className="srv-status-badge espera-ss">⏳ ACEPTADA • EN ESPERA DE SS</span>
+                            )}
+                            {srv.estatus === 'PENDIENTE' && (
+                              <span className="srv-status-badge pendiente">🕒 PENDIENTE RESPUESTA</span>
+                            )}
+                            {srv.estatus === 'VENCIDA' && (
+                              <span className="srv-status-badge vencida">⌛ VENCIDA</span>
+                            )}
+                            {srv.estatus === 'RECHAZADA' && (
+                              <span className="srv-status-badge rechazada">✕ RECHAZADA</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL VISOR PDF DE SOLICITUD DE SERVICIO (SS) ================= */}
+      <SolicitudServicioPdfModal
+        open={Boolean(servicioPdfModal)}
+        onClose={() => setServicioPdfModal(null)}
+        carpeta={carpetaSeleccionada}
+        servicio={servicioPdfModal}
+      />
     </div>
   );
 }

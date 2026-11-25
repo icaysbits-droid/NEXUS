@@ -85,15 +85,36 @@ export default function CoreHistorial() {
     });
   }, [logs, busqueda, filtroModulo, filtroNivel]);
 
+  const sanitizeCsvCell = (value) => {
+    let str = String(value ?? '').replace(/\r?\n/g, ' ');
+    if (/^[=+\-@\t\r]/.test(str)) {
+      str = `'${str}`; // Neutraliza evaluación de fórmulas en hojas de cálculo (CSV Injection)
+    }
+    return `"${str.replace(/"/g, '""')}"`;
+  };
+
   const exportarCSV = () => {
-    const headers = [
-      'ID,Timestamp,Usuario,Rol,Accion,Modulo,Detalle,Nivel,IP Origen,Dispositivo,Sistema Operativo,Navegador\n'
-    ];
-    const rows = filtrados.map(
-      (l) =>
-        `"${l.id || ''}","${l.timestamp || ''}","${l.usuario || ''}","${l.rol || ''}","${l.accion || ''}","${l.modulo || ''}","${(l.detalle || '').replace(/"/g, '""')}","${l.nivel || ''}","${l.ipOrigen || ''}","${l.dispositivo || ''}","${l.sistemaOperativo || ''}","${l.navegador || ''}"\n`
+    const headerLine =
+      'ID,Timestamp,Usuario,Rol,Accion,Modulo,Detalle,Nivel,IP Origen,Dispositivo,Sistema Operativo,Navegador\n';
+    const rows = filtrados.map((l) =>
+      [
+        l.id,
+        l.timestamp,
+        l.usuario,
+        l.rol,
+        l.accion,
+        l.modulo,
+        l.detalle,
+        l.nivel,
+        l.ipOrigen,
+        l.dispositivo,
+        l.sistemaOperativo,
+        l.navegador,
+      ]
+        .map(sanitizeCsvCell)
+        .join(',') + '\n'
     );
-    const blob = new Blob([headers.concat(rows)], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([headerLine, ...rows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
@@ -101,6 +122,7 @@ export default function CoreHistorial() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (

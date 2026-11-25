@@ -68,6 +68,12 @@
   border: 1px solid #fecaca;
 }
 
+.status-cot.rechazada {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 /* =========================================================
    BADGES DE MATRIZ ANALÍTICA
    ========================================================= */

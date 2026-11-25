@@ -4,6 +4,8 @@ import AuthForm from './components/AuthForm.jsx';
 import ClientesEjecutiva from './components/ejecutiva/ClientesEjecutiva.jsx';
 import ListaGeneralEjecutiva from './components/ejecutiva/ListaGeneralEjecutiva.jsx';
 import CotizacionEjecutiva from './components/ejecutiva/CotizacionEjecutiva.jsx';
+import GenerarSsEjecutiva from './components/ejecutiva/GenerarSsEjecutiva.jsx';
+import SupervisionEjecutiva from './components/ejecutiva/SupervisionEjecutiva.jsx';
 import ModelosEjecutiva from './components/ejecutiva/ModelosEjecutiva.jsx';
 import CoreControlShell from './components/core-control/CoreControlShell.jsx';
 import { getActiveSession, clearAuthSession, parseJwt } from './services/auth.js';
@@ -23,8 +25,6 @@ function App() {
   // Callback cuando el login fue exitoso en AuthForm
   const handleLoginSuccess = (userData, jwtToken) => {
     setSession({ token: jwtToken, user: userData });
-    console.log('✅ Sesión iniciada con éxito. Usuario:', userData);
-    console.log('🔑 JWT recibido y validado:', jwtToken);
   };
 
   // Cierre de sesión (Logout)
@@ -74,6 +74,20 @@ function App() {
             />
           ) : activeTab === 'cotizaciones' ? (
             <CotizacionEjecutiva
+              user={session.user}
+              onLogout={handleLogout}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+          ) : activeTab === 'generar-ss' ? (
+            <GenerarSsEjecutiva
+              user={session.user}
+              onLogout={handleLogout}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+          ) : activeTab === 'supervision' ? (
+            <SupervisionEjecutiva
               user={session.user}
               onLogout={handleLogout}
               activeTab={activeTab}

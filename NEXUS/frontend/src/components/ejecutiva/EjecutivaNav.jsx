@@ -58,6 +58,25 @@ function DocumentIcon(props) {
   );
 }
 
+// Icono Generar SS (Solicitud de Servicio)
+function AssignmentIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+    </SvgIcon>
+  );
+}
+
+// Icono Supervisión (Control y Auditoría Operativa)
+function SupervisionIcon(props) {
+  return (
+    <SvgIcon {...props} sx={{ fontSize: 18 }}>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="9 12 11 14 15 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </SvgIcon>
+  );
+}
+
 // Icono Modelos Analíticos / Matrices 2025
 function ModelIcon(props) {
   return (
@@ -168,7 +187,7 @@ export default function EjecutivaNav({ activeTab = 'clientes', setActiveTab, use
                 onClick={() => setActiveTab && setActiveTab('lista-general')}
               >
                 <span className="nav-icon"><ChartIcon /></span>
-                {!collapsed && <span>Lista General</span>}
+                {!collapsed && <span>Expediente del cliente</span>}
               </button>
             </Tooltip>
 
@@ -180,6 +199,28 @@ export default function EjecutivaNav({ activeTab = 'clientes', setActiveTab, use
               >
                 <span className="nav-icon"><DocumentIcon /></span>
                 {!collapsed && <span>Cotizaciones</span>}
+              </button>
+            </Tooltip>
+
+            <Tooltip title="Generar SS" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'generar-ss' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('generar-ss')}
+              >
+                <span className="nav-icon"><AssignmentIcon /></span>
+                {!collapsed && <span>Generar SS</span>}
+              </button>
+            </Tooltip>
+
+            <Tooltip title="Supervisión" placement="right" arrow disableHoverListener={!collapsed}>
+              <button
+                type="button"
+                className={`nav-item ${activeTab === 'supervision' ? 'active' : ''}`}
+                onClick={() => setActiveTab && setActiveTab('supervision')}
+              >
+                <span className="nav-icon"><SupervisionIcon /></span>
+                {!collapsed && <span>Supervisión</span>}
               </button>
             </Tooltip>
 

@@ -327,7 +327,11 @@ export default function AuthForm({ onLoginSuccess, setFeedback }) {
           {/* Pie de seguridad con icono de candado */}
           <div className="nexus-security-badge">
             <LockIcon />
-            <span className="nexus-security-text">Conexión segura y cifrada</span>
+            <span className="nexus-security-text">
+              {typeof window !== 'undefined' && window.location.protocol === 'https:'
+                ? 'Conexión segura y cifrada (TLS)'
+                : 'Entorno de desarrollo local'}
+            </span>
           </div>
         </CardContent>
       </Card>
